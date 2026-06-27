@@ -858,10 +858,16 @@ const LS = {
     try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
     // 3. Sync to Supabase in background (cross-device sync)
     if(SUPABASE_URL !== 'YOUR_SUPABASE_URL'){
-      sb.from('alliance_kv')
-        .upsert({ key: k, value: JSON.stringify(v) }, { onConflict: 'key' })
-        .then(() => {})
-        .catch(err => console.warn('Supabase sync error:', k, err));
+      fetch(SUPABASE_URL + '/rest/v1/alliance_kv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON,
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({ key: k, value: JSON.stringify(v) })
+      }).catch(err => console.warn('Background sync error:', k, err));
     }
   }
 };
@@ -883,22 +889,25 @@ async function initApp() {
   // Step 2: Try Supabase
   if(SUPABASE_URL !== 'YOUR_SUPABASE_URL'){
     try {
-      const { data, error } = await sb.from('alliance_kv').select('*');
-      if(error) throw error;
+      const res = await fetch(SUPABASE_URL + '/rest/v1/alliance_kv?select=*', {
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON
+        }
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
       SUPABASE_CONNECTED = true;
 
       if(data && data.length > 0){
-        // Supabase has data — it is truth, load it
         data.forEach(row => {
           try { CACHE[row.key] = JSON.parse(row.value); } catch(e) {}
         });
-        // Mirror to localStorage
         KEYS.forEach(k => {
           if(CACHE[k] !== undefined) try { localStorage.setItem(k, JSON.stringify(CACHE[k])); } catch(e) {}
         });
       } else if(hasLocalData){
-        // Supabase is empty but we have local data — auto-push to Supabase
-        console.log('Supabase empty, pushing local data to cloud...');
+        console.log('Supabase empty — pushing local data to cloud…');
         await pushAllToSupabase();
       }
     } catch(err) {
@@ -916,29 +925,59 @@ async function pushAllToSupabase(){
   const rows = KEYS
     .filter(k => CACHE[k] !== undefined)
     .map(k => ({ key: k, value: JSON.stringify(CACHE[k]) }));
+  const statusEl = document.getElementById('supabase-status');
   if(!rows.length){
-    showToast('Nothing to push — add data first', 'error');
+    if(statusEl) statusEl.innerHTML = '⚠️ <strong>Nothing to push</strong> — no data found on this device.';
+    showToast('Nothing to push — no data found', 'error');
     return;
   }
-  const statusEl = document.getElementById('supabase-status');
-  if(statusEl) statusEl.textContent = 'Pushing ' + rows.length + ' records…';
+  if(statusEl) statusEl.textContent = 'Pushing ' + rows.length + ' records to cloud…';
+
+  // Use direct REST API fetch — bypasses JS client permission issues
+  const url = SUPABASE_URL + '/rest/v1/alliance_kv';
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_ANON,
+    'Authorization': 'Bearer ' + SUPABASE_ANON,
+    'Prefer': 'resolution=merge-duplicates'
+  };
+
   try {
-    // Try upsert one row at a time to isolate failures
     let failed = 0;
+    let failDetails = [];
     for(const row of rows){
-      const { error } = await sb.from('alliance_kv').upsert([row], { onConflict: 'key' });
-      if(error){ console.error('Failed row', row.key, error); failed++; }
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(row)
+        });
+        if(!res.ok){
+          const errText = await res.text();
+          console.error('Row failed:', row.key, res.status, errText);
+          failDetails.push(row.key + ': ' + res.status + ' ' + errText.substring(0,80));
+          failed++;
+        }
+      } catch(fetchErr){
+        console.error('Fetch error for', row.key, fetchErr);
+        failed++;
+        failDetails.push(row.key + ': network error');
+      }
     }
-    if(failed > 0) throw new Error(failed + ' rows failed to write — run GRANT SQL in Supabase');
-    SUPABASE_CONNECTED = true;
-    if(statusEl){ statusEl.innerHTML = '✅ <strong>Synced!</strong> All ' + rows.length + ' records pushed to cloud.'; statusEl.style.borderColor = 'rgba(34,197,94,0.4)'; }
-    showToast('All data synced to cloud ✓', 'success');
-  } catch(err) {
-    const msg = err && err.message ? err.message : JSON.stringify(err);
-    showToast('Sync failed: ' + msg, 'error');
-    console.error('Push failed:', err);
-    document.getElementById('supabase-status').innerHTML = '❌ <strong>Write failed:</strong> ' + msg + '<br><small>Run in Supabase SQL: GRANT ALL PRIVILEGES ON TABLE alliance_kv TO anon;</small>';
-    document.getElementById('supabase-status').style.borderColor = 'rgba(239,68,68,0.4)';
+    if(failed > 0){
+      const detail = failDetails.join('; ');
+      if(statusEl){ statusEl.innerHTML = '❌ <strong>' + failed + ' rows failed:</strong><br><small>' + detail + '</small>'; statusEl.style.borderColor = 'rgba(239,68,68,0.4)'; }
+      showToast(failed + ' rows failed — see Owner Panel', 'error');
+    } else {
+      SUPABASE_CONNECTED = true;
+      if(statusEl){ statusEl.innerHTML = '✅ <strong>Synced!</strong> All ' + rows.length + ' records pushed to cloud.'; statusEl.style.borderColor = 'rgba(34,197,94,0.4)'; }
+      showToast('All data synced to cloud ✓', 'success');
+    }
+  } catch(err){
+    const msg = err && err.message ? err.message : String(err);
+    if(statusEl){ statusEl.innerHTML = '❌ <strong>Failed:</strong> ' + msg; statusEl.style.borderColor = 'rgba(239,68,68,0.4)'; }
+    showToast('Sync error: ' + msg, 'error');
+    console.error('Push error:', err);
   }
 }
 const getMembers=()=>LS.get('ac_members')||[];
@@ -2599,8 +2638,11 @@ async function checkSupabaseStatus(){
   }
   el.textContent = 'Testing connection…';
   try {
-    const { data, error } = await sb.from('alliance_kv').select('key').limit(1);
-    if(error) throw error;
+    const res = await fetch(SUPABASE_URL + '/rest/v1/alliance_kv?select=key', {
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status + ' — ' + await res.text());
+    const data = await res.json();
     SUPABASE_CONNECTED = true;
     el.innerHTML = '✅ <strong>Connected</strong> — Supabase is working. ' + (data && data.length ? data.length + ' key(s) in cloud.' : 'Cloud is empty — click Push to sync your data.');
     el.style.borderColor = 'rgba(34,197,94,0.4)';
