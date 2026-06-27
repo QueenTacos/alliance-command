@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Alliance Command</title>
+<style>
+:root{
+  --bg:#0a0618;--bg2:#12082a;--bg3:#1a0e3a;--bg4:#24154e;
+  --border:rgba(232,53,109,0.18);--border2:rgba(232,53,109,0.38);
+  --text:#f5eeff;--text2:#c4a8cc;--text3:#8a6a9a;
+  --accent:#e8356d;--accent2:#b01f50;
+  --gold:#f5a825;--pink:#e8356d;--ice:#f5896b;
+  --elite:#a855f7;--core:#e8356d;--actv:#22c55e;--casu:#f5a825;--need:#ef4444;
+  --r:8px;--r2:12px;
+  --font:'Century Gothic',CenturyGothic,AppleGothic,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.active{display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── LOGIN ── */
+#loginScreen{align-items:center;justify-content:center;padding:20px;}
+.login-wrap{width:100%;max-width:400px;}
+.login-brand{text-align:center;margin-bottom:28px;}
+.login-logo{font-size:40px;margin-bottom:10px;}
+.login-brand h1{font-size:22px;font-weight:800;letter-spacing:0.06em;color:var(--gold);}
+.login-brand p{font-size:11px;color:var(--text3);margin-top:5px;text-transform:uppercase;letter-spacing:0.12em;}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;}
+.ltabs{display:flex;background:var(--bg3);border-radius:var(--r);padding:3px;margin-bottom:22px;gap:2px;}
+.ltab{flex:1;padding:9px 6px;text-align:center;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;border-radius:6px;transition:all 0.15s;}
+.ltab.active{background:var(--bg4);color:var(--ice);border:1px solid var(--border2);}
+.lfield{margin-bottom:14px;}
+.lfield label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;}
+.lfield input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:15px;padding:11px 12px;outline:none;font-family:var(--font);}
+.lfield input:focus{border-color:var(--accent);}
+.lerr{font-size:13px;color:#f87171;display:none;padding:9px 12px;background:rgba(239,68,68,0.08);border-radius:var(--r);border:1px solid rgba(239,68,68,0.2);margin-bottom:12px;}
+.lbtn{width:100%;padding:13px;border-radius:var(--r);border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.lbtn.admin-btn{background:var(--accent2);color:#fff;border:1px solid var(--accent);}
+.lbtn.admin-btn:hover{background:var(--pink);}
+.lbtn.player-btn{background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.35);}
+.lhint{text-align:center;font-size:12px;color:var(--text3);margin-top:12px;}
+
+/* ── TOP NAV ── */
+.topnav{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.topnav-row1{max-width:1100px;margin:0 auto;padding:0 14px;display:flex;align-items:center;height:50px;gap:8px;}
+.topnav-row2{background:var(--bg2);border-top:1px solid var(--border);padding:0 14px;}
+.topnav-row2-inner{max-width:1100px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 0;}
+.topnav-row2-inner::-webkit-scrollbar{display:none;}
+.nav-brand{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-brand-icon{font-size:18px;}
+.nav-brand-text{font-size:13px;font-weight:800;letter-spacing:0.04em;color:var(--gold);}
+.nav-tabs{display:contents;}
+.nav-tab{padding:7px 13px;border-radius:var(--r);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all 0.13s;border:1px solid transparent;flex-shrink:0;display:inline-flex;align-items:center;gap:4px;}
+.nav-tab:hover{color:var(--text);background:var(--bg4);}
+.nav-tab.active{background:var(--bg4);color:var(--ice);border-color:var(--accent);}
+.nav-user{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-role{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;}
+.role-owner{color:var(--gold);background:rgba(245,168,37,0.12);border:1px solid rgba(245,168,37,0.4);}
+.role-admin{color:var(--ice);background:rgba(245,137,107,0.1);border:1px solid rgba(245,137,107,0.3);}
+.role-player{color:var(--actv);background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);}
+.logout-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;font-family:var(--font);}
+.logout-btn:hover{border-color:var(--need);color:#f87171;}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;max-width:1100px;margin:0 auto;width:100%;padding:24px 16px;}
+
+/* ── PAGES ── */
+.page{display:none;}
+.page.active{display:block;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+.page-title{font-size:20px;font-weight:800;}
+.page-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+
+/* ── CARDS / UTILS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
+.card-sm{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.btn{padding:8px 16px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.13s;font-family:var(--font);}
+.btn:hover{background:var(--bg4);border-color:var(--accent);}
+.btn-primary{background:var(--accent2);border-color:var(--accent);color:#fff;font-weight:700;}
+.btn-primary:hover{background:var(--pink);border-color:var(--pink);}
+.btn-danger{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;}
+.btn-success{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:#4ade80;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.13s;font-family:var(--font);}
+.icon-btn:hover{border-color:var(--accent);color:var(--ice);}
+.icon-btn.del:hover{border-color:#ef4444;color:#f87171;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--ice);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+.empty-msg{text-align:center;padding:36px 20px;color:var(--text3);}
+.empty-msg .emoji{font-size:32px;margin-bottom:10px;}
+.empty-msg p{font-size:14px;}
+
+/* forms */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.form-label{font-size:12px;color:var(--text2);font-weight:500;}
+.form-input,.form-select,.form-textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;padding:9px 11px;outline:none;font-family:var(--font);width:100%;}
+.cat-rating{font-size:15px;font-weight:600;padding:11px 14px;border-radius:var(--r);cursor:pointer;}
+.cat-rating option{font-size:14px;font-weight:600;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
+.form-select option{background:var(--bg3);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-full{grid-column:1/-1;}
+.char-count{font-size:11px;color:var(--text3);text-align:right;margin-top:3px;}
+.char-warn{color:var(--casu);}
+.char-over{color:var(--need);}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:400;align-items:flex-end;justify-content:center;padding:0;}
+.modal-overlay.open{display:flex;}
+@media(min-width:600px){.modal-overlay{align-items:center;padding:20px;}}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2) var(--r2) 0 0;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;}
+@media(min-width:600px){.modal{border-radius:var(--r2);}}
+.modal-lg{max-width:740px;}
+.modal-sm{max-width:380px;}
+.modal-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;}
+.modal-title{font-size:15px;font-weight:700;}
+.modal-body{padding:18px;}
+.modal-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* table */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.tbl-toolbar{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-box{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 11px;flex:1;min-width:160px;}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;}
+.search-box input::placeholder{color:var(--text3);}
+.flt{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text2);font-size:12px;padding:7px 8px;outline:none;}
+.flt option{background:var(--bg3);}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--bg3);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--ice);text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap;}
+td{padding:10px 12px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tr:hover td{background:rgba(100,160,255,0.03);}
+
+/* tier / rank badges */
+.tier-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.t-Legend{background:rgba(240,160,48,0.18);color:#f0a030;border:1px solid rgba(240,160,48,0.45);font-weight:800;}
+.t-Elite{background:rgba(232,53,109,0.15);color:#e8356d;border:1px solid rgba(232,53,109,0.35);}
+.t-Core{background:rgba(245,137,107,0.15);color:#f5896b;border:1px solid rgba(245,137,107,0.3);}
+.t-Active{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+.t-Casual{background:rgba(234,179,8,0.15);color:#facc15;border:1px solid rgba(234,179,8,0.3);}
+.t-Needs{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);}
+.rank-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;background:var(--bg4);color:var(--text2);border:1px solid var(--border);}
+.rank-num.r1{background:rgba(240,160,48,0.18);color:var(--gold);border-color:var(--gold);}
+.rank-num.r2{background:rgba(200,200,200,0.12);color:#ccc;border-color:#aaa;}
+.rank-num.r3{background:rgba(180,100,40,0.15);color:#cd7f32;border-color:#cd7f32;}
+.furnace-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(240,160,48,0.08);border:1px solid rgba(240,160,48,0.2);border-radius:4px;padding:2px 6px;font-size:11px;color:var(--gold);font-weight:600;}
+.adj-chip{font-size:11px;padding:1px 5px;border-radius:4px;font-weight:600;display:inline-block;}
+.adj-pos{background:rgba(34,197,94,0.1);color:#4ade80;}
+.adj-neg{background:rgba(239,68,68,0.1);color:#f87171;}
+.adj-zero{background:rgba(255,255,255,0.05);color:var(--text3);}
+.bar-track{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;}
+
+/* ── HOME PAGE SNIPPETS ── */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px;}
+.snippet-card{background:var(--bg2);border:1px solid rgba(232,53,109,0.2);border-radius:var(--r2);padding:18px;display:flex;flex-direction:column;gap:12px;}
+.snippet-header{display:flex;align-items:center;justify-content:space-between;}
+.snippet-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2);display:flex;align-items:center;gap:7px;}
+.snippet-title .emoji{font-size:16px;}
+.snippet-more{font-size:12px;color:var(--pink);cursor:pointer;font-weight:600;}
+.snippet-more:hover{text-decoration:underline;}
+.snippet-item{padding:10px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);}
+.snippet-item-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.snippet-item-sub{font-size:12px;color:var(--text2);}
+
+/* ── ANNOUNCEMENTS ── */
+.ann-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px;}
+.ann-card.pinned{border-color:rgba(245,168,37,0.4);background:rgba(245,168,37,0.03);}
+.ann-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.ann-type-pill{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:20px;}
+.atype-announcement{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.atype-urgent{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);}
+.atype-event{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+.atype-guide{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);}
+.ann-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.ann-body{font-size:13px;color:var(--text2);line-height:1.65;white-space:pre-wrap;}
+.ann-date{font-size:11px;color:var(--text3);}
+.pin-mark{color:var(--gold);font-size:14px;}
+
+/* ── EVENTS ── */
+.ev-card{background:var(--bg2);border:1px solid rgba(232,53,109,0.18);border-radius:var(--r2);padding:18px;margin-bottom:14px;}
+.ev-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.ev-name{font-size:16px;font-weight:800;}
+.ev-meta{font-size:12px;color:var(--text2);margin-top:3px;}
+.ev-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;}
+.ev-type-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+.etype-svs{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);}
+.etype-svs_prep{background:rgba(168,85,247,0.1);color:#d8b4fe;border:1px solid rgba(168,85,247,0.25);}
+.etype-foundry{background:rgba(240,160,48,0.15);color:var(--gold);border:1px solid rgba(240,160,48,0.3);}
+.etype-foundry_l1{background:rgba(240,160,48,0.15);color:var(--gold);border:1px solid rgba(240,160,48,0.3);}
+.etype-foundry_l2{background:rgba(240,130,20,0.15);color:#fb923c;border:1px solid rgba(240,130,20,0.3);}
+.etype-foundry_all{background:rgba(240,160,48,0.2);color:var(--gold);border:1px solid rgba(240,160,48,0.4);}
+.etype-beartrap{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);}
+.etype-canyon{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+.etype-canyon_l1{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+.etype-canyon_l2{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
+.etype-canyon_all{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.4);}
+.etype-fortress{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);}
+.etype-stronghold{background:rgba(220,38,38,0.18);color:#fca5a5;border:1px solid rgba(220,38,38,0.35);}
+.etype-facility{background:rgba(185,28,28,0.15);color:#fca5a5;border:1px solid rgba(185,28,28,0.3);}
+.etype-championship{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.etype-crazyjoe{background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);font-weight:800;}
+.etype-other{background:rgba(100,160,255,0.1);color:var(--ice);border:1px solid var(--border2);}
+.slot-section{border-top:1px solid var(--border);padding-top:12px;margin-top:4px;}
+.slot-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;}
+.slot-name{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.slot-bar-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.slot-bar-fill{height:100%;border-radius:3px;}
+.slot-count{font-size:12px;color:var(--text2);margin-bottom:8px;}
+.slot-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;min-height:20px;}
+.slot-tag{font-size:11px;padding:2px 7px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text2);}
+.slot-tag.me{background:rgba(58,123,213,0.15);border-color:var(--border2);color:var(--ice);}
+.no-signup-note{font-size:12px;color:var(--text3);margin-top:8px;}
+
+/* ── RESOURCES ── */
+.res-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.res-icon{width:40px;height:40px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ri-pdf{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);}
+.ri-image{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.2);}
+.ri-link{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2);}
+.ri-guide{background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.2);}
+.ri-video{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);}
+.res-info{flex:1;min-width:0;}
+.res-name{font-size:14px;font-weight:700;margin-bottom:3px;}
+.res-desc{font-size:12px;color:var(--text2);margin-bottom:7px;line-height:1.5;}
+.res-tag{font-size:10px;padding:2px 7px;background:var(--bg3);border-radius:4px;border:1px solid var(--border);color:var(--text3);}
+.res-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.res-filter-btn{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all 0.12s;}
+.res-filter-btn.active{border-color:var(--accent);color:var(--ice);background:var(--bg4);}
+
+/* ── FEEDBACK ── */
+.fb-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
+.fb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.fb-subject{font-size:13px;font-weight:700;}
+.fb-from{font-size:11px;color:var(--text3);}
+.fb-body{font-size:13px;color:var(--text2);line-height:1.6;}
+.fb-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.fs-pending{background:rgba(234,179,8,0.15);color:#facc15;border:1px solid rgba(234,179,8,0.3);}
+.fs-read{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);}
+.fs-replied{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.fb-reply{margin-top:10px;padding:10px;background:rgba(58,123,213,0.08);border-radius:var(--r);border-left:3px solid var(--accent);font-size:13px;color:var(--text2);}
+.fb-badge{margin-left:6px;background:var(--need);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;vertical-align:middle;}
+
+/* ── MEMBER STATS ── */
+.player-hero{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.p-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0;}
+.p-stats{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap;}
+.p-stat{text-align:center;padding:10px 16px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);}
+.p-stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;}
+.p-stat-val{font-size:20px;font-weight:800;}
+.tip-item{padding:11px 12px;background:var(--bg3);border-radius:var(--r);margin-bottom:8px;border-left:3px solid var(--need);}
+.tip-item.good{border-left-color:var(--actv);}
+.tip-item.mid{border-left-color:var(--casu);}
+.tip-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.tip-body{font-size:12px;color:var(--text2);line-height:1.6;}
+.tip-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--ice);margin-top:5px;}
+
+/* ── MEMBER CARD GRID ── */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.member-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:border-color 0.13s;}
+.member-card:hover{border-color:var(--border2);}
+
+/* ── STAR BUTTONS ── */
+.cat-stars{display:flex;gap:3px;}
+.rating-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.rating-btn{min-width:42px;height:42px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);cursor:pointer;font-size:14px;font-weight:800;color:var(--text3);display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s;font-family:var(--font);padding:0 8px;}
+.rating-btn:hover{border-color:var(--accent);color:var(--ice);background:rgba(58,123,213,0.15);}
+.rating-btn.active{border-color:var(--accent);color:var(--ice);background:rgba(58,123,213,0.2);font-size:16px;}
+.rating-btn[data-v="0"].active{border-color:var(--need);color:#f87171;background:rgba(239,68,68,0.12);}
+.rating-btn[data-v="1"].active{border-color:#f97316;color:#fb923c;background:rgba(249,115,22,0.12);}
+.rating-btn[data-v="2"].active{border-color:var(--casu);color:#facc15;background:rgba(234,179,8,0.12);}
+.rating-btn[data-v="3"].active{border-color:var(--core);color:#60a5fa;background:rgba(59,130,246,0.12);}
+.rating-btn[data-v="4"].active{border-color:var(--actv);color:#4ade80;background:rgba(34,197,94,0.12);}
+.rating-btn[data-v="5"].active{border-color:var(--elite);color:#c084fc;background:rgba(168,85,247,0.15);}
+.rrating-label{font-size:10px;color:var(--text3);margin-left:4px;}
+.score-strip{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+.ss-item{text-align:center;}
+.ss-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+.ss-val{font-size:16px;font-weight:700;}
+
+/* ── PIN SETUP ── */
+.pin-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:28px;max-width:400px;margin:60px auto;}
+
+/* ── OWNER PANEL ── */
+.owner-section{margin-bottom:22px;}
+.owner-section h3{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r);margin-bottom:7px;border:1px solid var(--border);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:16px;left:16px;max-width:360px;margin:0 auto;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 16px;color:var(--text);font-size:13px;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.22s;display:flex;align-items:center;gap:8px;}
+@media(min-width:500px){.toast{left:auto;}}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+.toast.error{border-color:rgba(239,68,68,0.4);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .form-row{grid-template-columns:1fr;}
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .player-hero{flex-direction:column;}
+  .p-stats{margin-left:0;width:100%;}
+  .p-stat{flex:1;}
+  .home-grid{grid-template-columns:1fr;}
+  table th:nth-child(n+5),table td:nth-child(n+5){display:none;}
+}
+
+.ev-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.ev-section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--ice);margin-bottom:12px;}
+.part-toggle-row{padding:10px 12px;background:var(--bg4);border-radius:var(--r);border:1px solid var(--border);}
+.bc-card{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.bc-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.bc-card-title{font-size:12px;font-weight:700;color:var(--ice);}
+.bc-type-btn{padding:6px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.12s;}
+.bc-type-btn.active-attack{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.5);color:#f87171;}
+.bc-type-btn.active-defense{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.5);color:#60a5fa;}
+.bc-troop-btn{padding:5px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.12s;}
+.bc-troop-btn.active{border-color:var(--pink);color:var(--ice);background:rgba(232,53,109,0.15);}
+.bc-sub-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.bc-add-btn{padding:5px 11px;border-radius:var(--r);border:1px dashed var(--border2);background:transparent;color:var(--text3);font-size:12px;cursor:pointer;font-family:var(--font);}
+.bc-add-btn:hover{border-color:var(--accent);color:var(--ice);}
+.si-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;}
+.si-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.si-label{font-size:12px;font-weight:700;color:var(--text2);}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="app-loader" style="display:none;position:fixed;inset:0;background:#0a0e1a;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="font-size:40px">❄️</div>
+  <div style="color:#7dd3fc;font-size:15px;font-weight:800;letter-spacing:0.08em">ALLIANCE COMMAND</div>
+  <div style="color:#5a6a94;font-size:13px">Loading alliance data…</div>
+  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--ice);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<!-- ════════════════ LOGIN ════════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-logo">❄️</div>
+      <h1>ALLIANCE COMMAND</h1>
+      <p>Whiteout Survival · Management Platform</p>
+    </div>
+    <div class="login-card">
+      <div class="ltabs">
+        <div class="ltab active" id="lt-admin" onclick="switchLTab('admin')">🛡️ Admin</div>
+        <div class="ltab" id="lt-player" onclick="switchLTab('player')">👤 Player</div>
+      </div>
+      <div id="lf-admin">
+        <div class="lfield"><label>Username</label><input type="text" id="l-auser" autocomplete="off" placeholder="Enter username"></div>
+        <div class="lfield"><label>Password</label><input type="password" id="l-apass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin('admin')"></div>
+        <div class="lerr" id="le-admin">Incorrect username or password.</div>
+        <button class="lbtn admin-btn" onclick="doLogin('admin')">Sign In</button>
+      </div>
+      <div id="lf-player" style="display:none">
+        <div class="lfield"><label>In-Game Name</label><input type="text" id="l-pname" autocomplete="off" placeholder="Your exact in-game name"></div>
+        <div class="lfield"><label>PIN</label><input type="password" id="l-ppin" placeholder="Your PIN" maxlength="8" onkeydown="if(event.key==='Enter')doLogin('player')"></div>
+        <div class="lerr" id="le-player"></div>
+        <button class="lbtn player-btn" onclick="doLogin('player')">View My Stats</button>
+        <p class="lhint">First time? Enter your name and create a new PIN.</p>
+      </div>
+      <!-- hidden owner fields -->
+      <div style="display:none"><input type="text" id="l-ouser"><input type="password" id="l-opass"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MAIN APP ════════════════ -->
+<div id="mainApp" class="screen">
+  <div class="topnav">
+    <!-- Row 1: Brand + user info -->
+    <div class="topnav-row1">
+      <div class="nav-brand">
+        <span class="nav-brand-icon">❄️</span>
+        <span class="nav-brand-text">ALLIANCE COMMAND</span>
+      </div>
+      <div class="nav-user">
+        <span class="nav-role" id="nav-role-badge">—</span>
+        <button class="logout-btn" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+    <!-- Row 2: Nav tabs — ALL users see this row -->
+    <div class="topnav-row2">
+      <div class="topnav-row2-inner" id="nav-tabs">
+        <div class="nav-tab active" data-page="home">🏠 Home</div>
+        <div class="nav-tab" data-page="announcements">📢 Announcements</div>
+        <div class="nav-tab" data-page="events">📅 Events</div>
+        <div class="nav-tab" data-page="resources">📚 Resources</div>
+        <div class="nav-tab" data-page="rankings">🏆 Rankings</div>
+        <div class="nav-tab" id="tab-myfeedback" data-page="myfeedback" style="display:none">✉️ My Feedback</div>
+        <div class="nav-tab player-tab" id="tab-mystats" data-page="mystats" style="display:none">📊 My Stats</div>
+      </div>
+    </div>
+  </div>
+  <!-- Admin-only second row -->
+  <div id="admin-nav-bar" style="display:none;background:rgba(18,26,50,0.95);border-bottom:1px solid rgba(232,53,109,0.3);">
+    <div style="max-width:1100px;margin:0 auto;padding:0 14px;display:flex;align-items:center;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-top:3px;padding-bottom:3px;">
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--pink);margin-right:6px;flex-shrink:0;padding:4px 0;">🛡️ ADMIN</span>
+      <div class="nav-tab admin-tab" data-page="members">👥 Members</div>
+      <div class="nav-tab admin-tab" data-page="feedback">💬 Feedback <span class="fb-badge" id="fb-badge" style="display:none">0</span></div>
+      <div class="nav-tab owner-tab" data-page="ownerpanel" style="display:none">👑 Owner Panel</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div style="margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800" id="home-greeting">Welcome</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:3px">Your alliance hub — everything in one place</div>
+      </div>
+
+      <!-- 3 snippet cards -->
+      <div class="home-grid" id="home-snippets"></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:28px 0 20px">
+      <div id="home-scoring-guide"></div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div class="page" id="page-announcements">
+      <div class="page-header">
+        <div><div class="page-title">📢 Announcements</div><div class="page-sub">Messages &amp; alerts from leadership</div></div>
+        <div id="btn-new-ann" style="display:none"><button class="btn btn-primary" onclick="openModal('modal-ann')">+ New Announcement</button></div>
+      </div>
+      <div id="ann-list"></div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="page" id="page-events">
+      <div class="page-header">
+        <div><div class="page-title">📅 Events</div><div class="page-sub">Alliance events &amp; sign-ups</div></div>
+        <div id="btn-new-ev" style="display:none"><button class="btn btn-primary" onclick="openModal('modal-ev')">+ Add Event</button></div>
+      </div>
+      <div id="ev-list"></div>
+    </div>
+
+    <!-- RESOURCES -->
+    <div class="page" id="page-resources">
+      <div class="page-header">
+        <div><div class="page-title">📚 Resources</div><div class="page-sub">Guides, links &amp; training materials</div></div>
+        <div id="btn-new-res" style="display:none"><button class="btn btn-primary" onclick="openModal('modal-res')">+ Add Resource</button></div>
+      </div>
+      <div class="res-filters" id="res-filters">
+        <div class="res-filter-btn active" data-resfilter="">All</div>
+        <div class="res-filter-btn" data-resfilter="guide">Guides</div>
+        <div class="res-filter-btn" data-resfilter="pdf">PDFs</div>
+        <div class="res-filter-btn" data-resfilter="link">Links</div>
+        <div class="res-filter-btn" data-resfilter="video">Videos</div>
+      </div>
+      <div id="res-list"></div>
+    </div>
+
+    <!-- RANKINGS (admin) -->
+    <div class="page" id="page-rankings">
+      <div class="page-header">
+        <div><div class="page-title">🏆 Rankings</div><div class="page-sub">Alliance member standings — see how everyone ranks</div></div>
+        <div id="rankings-admin-btns" style="display:none;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-primary" onclick="openModal('modal-member')">+ Add Member</button>
+        </div>
+      </div>
+      <!-- Player's own rank highlight (shown for players) -->
+      <div id="my-rank-banner" style="display:none;margin-bottom:16px"></div>
+      <div class="tbl-wrap">
+        <div class="tbl-toolbar">
+          <div class="search-box"><span style="color:var(--text3)">🔍</span><input type="text" id="rank-search" placeholder="Search…" oninput="renderRankings()"></div>
+          <select class="flt" id="rank-tier" onchange="renderRankings()"><option value="">All Tiers</option><option>Legend</option><option>Elite</option><option>Core</option><option>Active</option><option>Casual</option><option>Needs Improvement</option></select>
+          <select class="flt" id="rank-sort" onchange="renderRankings()"><option value="score">Score</option><option value="part">Participation</option><option value="power">Power</option><option value="name">Name</option></select>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Member</th><th>Furnace</th><th>Power</th><th>Score</th><th>Tier</th><th></th></tr></thead><tbody id="rank-tbody"></tbody></table></div>
+        <div id="rank-empty" class="empty-msg" style="display:none"><div class="emoji">👥</div><p>No members yet.</p></div>
+      </div>
+    </div>
+
+    <!-- MEMBERS (admin) -->
+    <div class="page" id="page-members">
+      <div class="page-header">
+        <div><div class="page-title">👥 Member Profiles</div><div class="page-sub">Private profiles &amp; notes</div></div>
+        <button class="btn btn-primary" onclick="openModal('modal-member')">+ Add Member</button>
+      </div>
+      <div class="member-grid" id="member-grid"></div>
+      <div id="members-empty" class="empty-msg" style="display:none"><div class="emoji">👥</div><p>No members yet.</p></div>
+    </div>
+
+    <!-- FEEDBACK (admin) -->
+    <div class="page" id="page-feedback">
+      <div class="page-header"><div class="page-title">💬 Member Feedback</div><div class="page-sub">Private messages from members</div></div>
+      <div id="fb-admin-list"></div>
+      <div id="fb-admin-empty" class="empty-msg" style="display:none"><div class="emoji">✉️</div><p>No feedback yet.</p></div>
+    </div>
+
+    <!-- OWNER PANEL -->
+    <div class="page" id="page-ownerpanel">
+      <div class="page-header"><div class="page-title">👑 Owner Panel</div><div class="page-sub">Full control panel</div></div>
+      <div class="card" style="max-width:540px">
+        <div class="owner-section">
+          <h3>Admin Accounts</h3>
+          <div id="admin-list"></div>
+          <div style="margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px">
+            <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">Add New Admin</div>
+            <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="oa-user" autocomplete="off" placeholder="New admin username"></div>
+            <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="oa-pass" placeholder="New admin password"></div>
+            <div class="lerr" id="oa-err" style="margin-bottom:10px"></div>
+            <button class="btn btn-primary btn-sm" onclick="addAdmin()">+ Add Admin</button>
+          </div>
+        </div>
+        <div class="owner-section">
+          <h3>Change Owner Credentials</h3>
+          <div class="form-group"><label class="form-label">New Username</label><input class="form-input" id="oc-user" autocomplete="off"></div>
+          <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="oc-pass"></div>
+          <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" id="oc-pass2"></div>
+          <div class="lerr" id="oc-err" style="margin-bottom:10px"></div>
+          <button class="btn btn-primary btn-sm" onclick="saveOwnerCreds()">Update Credentials</button>
+        </div>
+        <div class="owner-section">
+          <h3>Cloud Sync</h3>
+          <div id="supabase-status" style="font-size:13px;margin-bottom:10px;padding:10px 12px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border)">Checking connection…</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="pushAllToSupabase()">☁️ Push All Data to Cloud</button>
+            <button class="btn btn-sm" onclick="checkSupabaseStatus()">🔄 Check Connection</button>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:8px;line-height:1.6">Use "Push All Data to Cloud" after adding members or admins on this device so other devices can see them.</div>
+        </div>
+        <div class="owner-section">
+          <h3>Danger Zone</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" onclick="clearAllMembers()">🗑 Clear All Members</button>
+            <button class="btn btn-danger btn-sm" onclick="resetAdmins()">Reset Admins to Default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY STATS (player) -->
+    <div class="page" id="page-mystats">
+      <div class="page-header"><div class="page-title">📊 My Stats</div><div class="page-sub">Your personal ranking &amp; performance</div></div>
+      <div id="p-hero"></div>
+      <div class="grid2" style="margin-top:16px">
+        <div class="card"><div class="section-label">Category Scores</div><div id="p-cats"></div></div>
+        <div class="card"><div class="section-label">Score Breakdown</div><div id="p-breakdown"></div></div>
+      </div>
+      <div class="card" style="margin-top:14px"><div class="section-label">💡 Tips &amp; Improvement</div><div id="p-tips"></div></div>
+      <div class="card" style="margin-top:14px;display:none" id="p-notes-card"><div class="section-label">📝 Leadership Notes</div><div id="p-notes"></div></div>
+    </div>
+
+    <!-- MY FEEDBACK (player) -->
+    <div class="page" id="page-myfeedback">
+      <div class="page-header"><div class="page-title">✉️ My Feedback</div><div class="page-sub">Send private comments &amp; questions to leadership — only you and admins can see these</div></div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="section-label">Submit Feedback</div>
+        <div class="form-group"><label class="form-label">Subject</label><input class="form-input" id="fb-subject" placeholder="What's on your mind?"></div>
+        <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="fb-body" rows="4" placeholder="Your message to leadership…"></textarea></div>
+        <button class="btn btn-primary" onclick="submitFeedback()">Send Feedback</button>
+      </div>
+      <div class="section-label">Previous Feedback</div>
+      <div id="p-fb-list"></div>
+      <div id="p-fb-empty" class="empty-msg" style="display:none"><div class="emoji">✉️</div><p>No feedback submitted yet.</p></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /mainApp -->
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- Announcement modal -->
+<div class="modal-overlay" id="modal-ann">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title" id="ann-modal-title">New Announcement</span><button class="icon-btn" onclick="closeModal('modal-ann')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="ann-type"><option value="announcement">Announcement</option><option value="urgent">Urgent</option><option value="event">Event Notice</option><option value="guide">Guide / Tip</option></select></div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="ann-title" placeholder="Announcement title" maxlength="100"></div>
+      <div class="form-group">
+        <label class="form-label">Message <span style="color:var(--text3)">(max 500 characters)</span></label>
+        <textarea class="form-textarea" id="ann-body" rows="5" maxlength="500" oninput="updateCharCount()" placeholder="Write your message to the alliance…"></textarea>
+        <div class="char-count" id="ann-char-count">0 / 500</div>
+      </div>
+      <div class="form-group"><label class="form-label">Link (optional — Google Drive, YouTube, etc.)</label><input class="form-input" id="ann-link" placeholder="https://…"></div>
+      <div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="ann-pinned" style="width:16px;height:16px;cursor:pointer"><label for="ann-pinned" style="font-size:13px;cursor:pointer">📌 Pin to top</label></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-ann')">Cancel</button><button class="btn btn-primary" onclick="saveAnnouncement()">Post Announcement</button></div>
+  </div>
+</div>
+
+<!-- Event modal -->
+<div class="modal-overlay" id="modal-ev">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="ev-modal-title">Add Event</span>
+      <button class="icon-btn" onclick="closeModal('modal-ev')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- ══ EVENT INFO ══ -->
+      <div class="ev-section">
+        <div class="ev-section-label">📋 Event Info</div>
+        <div class="form-row">
+          <div class="form-group form-full"><label class="form-label">Event Title</label><input class="form-input" id="ev-name" placeholder="e.g. Fortress Battle Week 14"></div>
+          <div class="form-group"><label class="form-label">Event Type <span style="color:var(--text3);font-size:11px">free text</span></label><input class="form-input" id="ev-type-text" placeholder="e.g. Fortress, SVS, Bear Trap…"></div>
+          <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ev-date" type="date"></div>
+          <div class="form-group"><label class="form-label">Time</label><input class="form-input" id="ev-time" type="time"></div>
+          <div class="form-group form-full"><label class="form-label">Event Details / Message</label><textarea class="form-textarea" id="ev-desc" rows="3" placeholder="Rules, meeting points, requirements…"></textarea></div>
+        </div>
+      </div>
+
+      <!-- ══ BATTLE CONFIGURATION ══ -->
+      <div class="ev-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ev-section-label" style="margin-bottom:0">⚔️ Battle Configuration</div>
+          <button type="button" class="btn btn-sm" onclick="addBattleConfig()">+ Add Battle Config</button>
+        </div>
+        <div id="battle-configs-list"></div>
+        <div id="bc-empty" style="font-size:13px;color:var(--text3);padding:10px 0">No battle configuration added yet. Click "+ Add Battle Config" to start.</div>
+      </div>
+
+      <!-- ══ PARTICIPATION ══ -->
+      <div class="ev-section">
+        <div class="ev-section-label">✅ Participation</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <!-- Rally Lead -->
+          <div class="part-toggle-row">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="pt-rallylead" onchange="togglePartOption('rallylead')" style="width:16px;height:16px">
+              <span style="font-size:13px;font-weight:600">🚩 Rally Lead Sign-up</span>
+            </label>
+            <div id="pt-rallylead-sub" style="display:none;margin-top:8px;padding-left:26px">
+              <div class="form-group"><label class="form-label">Number of Rally Lead spots</label><input class="form-input" id="pt-rallylead-qty" type="number" min="1" placeholder="e.g. 5" style="max-width:140px"></div>
+            </div>
+          </div>
+
+          <!-- Online -->
+          <div class="part-toggle-row">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="pt-online" onchange="togglePartOption('online')" style="width:16px;height:16px">
+              <span style="font-size:13px;font-weight:600">🌐 Online</span>
+            </label>
+            <div id="pt-online-sub" style="display:none;margin-top:8px;padding-left:26px">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Wave selection (check all that apply):</div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="pt-wave10" style="width:15px;height:15px"> HQ Wave 10 (15 spots)</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="pt-wave20" style="width:15px;height:15px"> HQ Wave 20 (15 spots)</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Offline -->
+          <div class="part-toggle-row">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="pt-offline" style="width:16px;height:16px">
+              <span style="font-size:13px;font-weight:600">💤 Offline</span>
+            </label>
+          </div>
+
+          <!-- Will / Won't participate -->
+          <div class="part-toggle-row">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="pt-willpart" style="width:16px;height:16px">
+              <span style="font-size:13px;font-weight:600">📣 Will / Won't Participate</span>
+            </label>
+          </div>
+
+          <!-- Team 1 / Team 2 -->
+          <div class="part-toggle-row">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="pt-teams" onchange="togglePartOption('teams')" style="width:16px;height:16px">
+              <span style="font-size:13px;font-weight:600">👥 Team 1 / Team 2</span>
+            </label>
+            <div id="pt-teams-sub" style="display:none;margin-top:8px;padding-left:26px">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Members choose which team they are on:</div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="pt-team1" style="width:15px;height:15px"> Team 1</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="pt-team2" style="width:15px;height:15px"> Team 2</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-ev')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resource modal -->
+<div class="modal-overlay" id="modal-res">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Add Resource</span><button class="icon-btn" onclick="closeModal('modal-res')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="res-type"><option value="guide">Guide / Training</option><option value="pdf">PDF Document</option><option value="link">External Link</option><option value="video">Video</option><option value="image">Image</option></select></div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="res-title" placeholder="Resource title"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="res-desc" rows="3" placeholder="Briefly describe this resource…"></textarea></div>
+      <div class="form-group"><label class="form-label">Google Drive / Link URL</label><input class="form-input" id="res-url" placeholder="https://drive.google.com/…"></div>
+      <div class="form-group"><label class="form-label">Tag (optional)</label><input class="form-input" id="res-tag" placeholder="e.g. SVS, Bear Trap, Beginner…"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-res')">Cancel</button><button class="btn btn-primary" onclick="saveResource()">Save Resource</button></div>
+  </div>
+</div>
+
+<!-- Member modal -->
+<div class="modal-overlay" id="modal-member">
+  <div class="modal modal-lg">
+    <div class="modal-header"><span class="modal-title" id="member-modal-title">Add Member</span><button class="icon-btn" onclick="closeModal('modal-member')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group form-full"><label class="form-label">In-Game Name (IGN)</label><input class="form-input" id="m-name" placeholder="Exact in-game name" oninput="updateScorePreview()"></div>
+        <div class="form-group form-full"><label class="form-label">Gamer ID <span style="color:var(--text3);font-size:11px">Numeric player ID from game profile</span></label><input class="form-input" id="m-gamerid" type="text" inputmode="numeric" placeholder="e.g. 1234567890" autocomplete="off"></div>
+        <div class="form-group"><label class="form-label">Alliance Rank</label><select class="form-select" id="m-arank"><option value="">— Select Rank —</option><option value="R1">R1 — Member</option><option value="R2">R2 — Senior Member</option><option value="R3">R3 — Officer</option><option value="R4">R4 — Senior Officer</option><option value="R5">R5 — Leader</option></select></div>
+        <div class="form-group"><label class="form-label">Furnace Level (1–84)</label><input class="form-input" id="m-furnace" type="number" min="1" max="84" placeholder="e.g. 55" oninput="updateScorePreview()"></div>
+        <div class="form-group"><label class="form-label">Power (Millions, e.g. 250)</label><input class="form-input" id="m-power" type="number" min="0" placeholder="e.g. 250" oninput="updateScorePreview()"></div>
+        <div style="grid-column:1/-1;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.09em;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:4px">Participation Scores &nbsp;·&nbsp; 0=None &nbsp;·&nbsp; 3=Average &nbsp;·&nbsp; 5=Excellent</div>
+        <div class="form-group"><label class="form-label">SVS Prep Scores <span style="color:var(--text3);font-size:11px">Weight ×5</span></label><select class="form-select cat-rating" id="ms-svsprep" onchange="onRatingChange('svsprep',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">SVS Castle Participation <span style="color:var(--text3);font-size:11px">Weight ×5</span></label><select class="form-select cat-rating" id="ms-svscastle" onchange="onRatingChange('svscastle',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Foundry &amp; Canyon Clash <span style="color:var(--text3);font-size:11px">Weight ×4</span></label><select class="form-select cat-rating" id="ms-foundry" onchange="onRatingChange('foundry',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Bear Trap Participation <span style="color:var(--text3);font-size:11px">Weight ×4</span></label><select class="form-select cat-rating" id="ms-beartrap" onchange="onRatingChange('beartrap',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Bear Trap Squads <span style="color:var(--text3);font-size:11px">Weight ×3</span></label><select class="form-select cat-rating" id="ms-beartrapsquads" onchange="onRatingChange('beartrapsquads',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Alliance Championship <span style="color:var(--text3);font-size:11px">Weight ×3</span></label><select class="form-select cat-rating" id="ms-championship" onchange="onRatingChange('championship',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Fortress/Stronghold/Facility <span style="color:var(--text3);font-size:11px">Weight ×2</span></label><select class="form-select cat-rating" id="ms-fortress" onchange="onRatingChange('fortress',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group"><label class="form-label">Activity <span style="color:var(--text3);font-size:11px">Weight ×2</span></label><select class="form-select cat-rating" id="ms-activity" onchange="onRatingChange('activity',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select><div style="font-size:10px;color:var(--text3);margin-top:4px">5=0–30min offline · 4=31–120min · 3=121–360min · 2=361–720min · 1=721–1440min</div></div>
+        <div class="form-group"><label class="form-label">Communication <span style="color:var(--text3);font-size:11px">Weight ×1</span></label><select class="form-select cat-rating" id="ms-comms" onchange="onRatingChange('comms',this.value);updateScorePreview()"><option value="0">0 — None</option><option value="1">1 — Poor</option><option value="2">2 — Below Avg</option><option value="3">3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></div>
+        <div class="form-group form-full"><label class="form-label">Leadership Notes (private)</label><textarea class="form-textarea" id="m-notes" rows="3" placeholder="Private notes visible only to this player and admins…"></textarea></div>
+        <div class="score-strip" style="grid-column:1/-1">
+          <div class="ss-item"><div class="ss-label">Participation</div><div class="ss-val" id="prev-part" style="color:var(--ice)">0</div></div>
+          <div class="ss-item"><div class="ss-label">Furnace Adj</div><div class="ss-val" id="prev-furn" style="color:var(--gold)">—</div></div>
+          <div class="ss-item"><div class="ss-label">Power Adj</div><div class="ss-val" id="prev-pow" style="color:var(--gold)">—</div></div>
+          <div class="ss-item"><div class="ss-label">Final Score</div><div class="ss-val" id="prev-final">—</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-member')">Cancel</button><button class="btn btn-primary" onclick="saveMember()">Save Member</button></div>
+  </div>
+</div>
+
+<!-- Profile modal -->
+<div class="modal-overlay" id="modal-profile">
+  <div class="modal modal-lg">
+    <div class="modal-header"><span class="modal-title" id="profile-modal-title">Member Profile</span><button class="icon-btn" onclick="closeModal('modal-profile')">✕</button></div>
+    <div class="modal-body" id="profile-modal-body"></div>
+  </div>
+</div>
+
+<!-- Edit feedback modal (player) -->
+<div class="modal-overlay" id="modal-edit-fb">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title">✏️ Edit Feedback</span><button class="icon-btn" onclick="closeModal('modal-edit-fb')">✕</button></div>
+    <div class="modal-body">
+      <div class="lerr" id="edit-fb-err" style="display:none;margin-bottom:12px"></div>
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" id="edit-fb-subject" placeholder="Subject"></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="edit-fb-body" rows="5" placeholder="Your message…"></textarea></div>
+      <div style="font-size:12px;color:var(--text3);margin-top:-6px">Note: editing will reset the status to pending so leadership sees the updated message.</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-edit-fb')">Cancel</button><button class="btn btn-primary" onclick="saveEditFeedback()">Save Changes</button></div>
+  </div>
+</div>
+
+<!-- Reply modal -->
+<div class="modal-overlay" id="modal-reply">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title">Reply to Feedback</span><button class="icon-btn" onclick="closeModal('modal-reply')">✕</button></div>
+    <div class="modal-body">
+      <div id="reply-preview" style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:13px;color:var(--text2)"></div>
+      <div class="form-group"><label class="form-label">Your Reply</label><textarea class="form-textarea" id="reply-text" rows="4" placeholder="Write your reply…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-reply')">Cancel</button><button class="btn btn-primary" onclick="sendReply()">Send Reply</button></div>
+  </div>
+</div>
+
+<!-- PIN setup -->
+<div class="modal-overlay" id="modal-pin">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title">🔒 Set Your PIN</span></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Welcome! Create a 4–8 digit numeric PIN to secure your account. You'll use this every time you log in.</p>
+      <div class="form-group"><label class="form-label">New PIN (4–8 digits)</label><input class="form-input" type="password" id="pin1" maxlength="8" placeholder="Enter PIN"></div>
+      <div class="form-group"><label class="form-label">Confirm PIN</label><input class="form-input" type="password" id="pin2" maxlength="8" placeholder="Repeat PIN"></div>
+      <div class="lerr" id="pin-err" style="margin-bottom:0"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" style="width:100%" onclick="savePIN()">Save PIN &amp; Continue</button></div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title">Confirm</span><button class="icon-btn" onclick="closeModal('modal-confirm')">✕</button></div>
+    <div class="modal-body"><p style="font-size:14px;color:var(--text2)" id="confirm-msg"></p></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-confirm')">Cancel</button><button class="btn btn-danger" id="confirm-ok">Confirm</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+// ══════════════════════════════════════════
+// DATA CONSTANTS
+// ══════════════════════════════════════════
+const CATS=[
+  {id:'svsprep',label:'SVS Prep Scores',weight:5},
+  {id:'svscastle',label:'SVS Castle Participation',weight:5},
+  {id:'foundry',label:'Foundry & Canyon Clash',weight:4},
+  {id:'beartrap',label:'Bear Trap Participation',weight:4},
+  {id:'beartrapsquads',label:'Bear Trap Squads',weight:3},
+  {id:'championship',label:'Alliance Championship',weight:3},
+  {id:'fortress',label:'Fortress/Stronghold',weight:2},
+  {id:'activity',label:'Activity',weight:2},
+  {id:'comms',label:'Communication',weight:1}
+];
+const MAX_PART=CATS.reduce((s,c)=>s+c.weight*5,0);
+const MAX_TOTAL=MAX_PART+40;
+const CAT_TIPS={
+  svsprep:{title:'Boost SVS Prep Score',body:'Complete all pre-SVS tasks — troop staging, rally joining, resource stockpiling.',url:'https://www.youtube.com/results?search_query=whiteout+survival+SVS+prep+guide'},
+  svscastle:{title:'Improve SVS Castle Participation',body:'Show up to castle battles. Supporting rallies and reinforcing defenses counts even with weaker troops.',url:'https://www.youtube.com/results?search_query=whiteout+survival+SVS+castle'},
+  foundry:{title:'Join Foundry & Canyon Clash',body:'Log in during event windows and coordinate attack times with your squad.',url:'https://www.youtube.com/results?search_query=whiteout+survival+foundry'},
+  beartrap:{title:'Participate in Bear Trap',body:'Set reminders for event windows and prep traps before the event starts.',url:'https://www.youtube.com/results?search_query=whiteout+survival+bear+trap'},
+  beartrapsquads:{title:'Engage Bear Trap Squads',body:'Join or form a dedicated squad. Coordination dramatically improves efficiency.',url:'https://www.youtube.com/results?search_query=whiteout+survival+bear+trap+squad'},
+  championship:{title:'Show Up for Alliance Championship',body:'Every participant boosts the alliance total. Ask R4/R5 for your assigned role.',url:'https://www.youtube.com/results?search_query=whiteout+survival+alliance+championship'},
+  fortress:{title:'Join Fortress & Stronghold',body:'Check the alliance event calendar and be online during battle windows.',url:'https://www.youtube.com/results?search_query=whiteout+survival+fortress'},
+  activity:{title:'Improve Your Activity Level',body:'Log in at least every 2 hours during peak events. Even brief check-ins help.',url:'https://www.youtube.com/results?search_query=whiteout+survival+tips'},
+  comms:{title:'Communicate More',body:'Respond in chat, confirm attendance, report status to R4/R5.',url:'https://www.youtube.com/results?search_query=whiteout+survival+alliance+strategy'}
+};
+const TIER_TIPS={
+  Legend:{body:"Legendary status! You are the gold standard of this alliance. Your consistency and dedication sets the benchmark for everyone.",color:'#f0a030'},
+  Elite:{body:"Outstanding performance! You are one of the top contributors. Keep leading by example and help mentor others toward Legend.",color:'#a855f7'},
+  Core:{body:'Strong and reliable contributor. Focus on your lowest 1–2 category scores and consistent attendance to break into Elite.',color:'#3b82f6'},
+  Active:{body:'Good overall participation. Push harder on your weakest categories and stay engaged during major events to reach Core.',color:'#22c55e'},
+  Casual:{body:"You are contributing but there is real room to grow. Prioritize SVS Prep & Castle for the biggest score jump.",color:'#eab308'},
+  'Needs Improvement':{body:'Attendance and communication are your quickest wins. Show up consistently and engage with your squad — every event counts.',color:'#ef4444'}
+};
+
+// ══════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════
+// ── SUPABASE CONFIG — fill these in after creating your project ──
+const SUPABASE_URL  = 'https://aurjyiqmtubvlelkiggk.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_4qW-5xCUkceQGQmr1h1aHQ_pkl0zL_5';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// In-memory cache — app reads from here (instant), writes go to Supabase in background
+const CACHE = {};
+
+const LS = {
+  get: k => (CACHE[k] !== undefined ? CACHE[k] : null),
+  set: (k, v) => {
+    // 1. Update in-memory cache immediately (instant UI)
+    CACHE[k] = v;
+    // 2. Always write to localStorage (guaranteed persistence)
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+    // 3. Sync to Supabase in background (cross-device sync)
+    if(SUPABASE_URL !== 'YOUR_SUPABASE_URL'){
+      sb.from('alliance_kv')
+        .upsert({ key: k, value: JSON.stringify(v) }, { onConflict: 'key' })
+        .then(() => {})
+        .catch(err => console.warn('Supabase sync error:', k, err));
+    }
+  }
+};
+
+let SUPABASE_CONNECTED = false;
+
+async function initApp() {
+  const loader = document.getElementById('app-loader');
+  if(loader) loader.style.display = 'flex';
+
+  const KEYS=['ac_members','ac_admins','ac_owner','ac_pins','ac_ann','ac_events','ac_resources','ac_feedback'];
+
+  // Step 1: Always load localStorage first
+  KEYS.forEach(k => {
+    try { const d = localStorage.getItem(k); if(d) CACHE[k] = JSON.parse(d); } catch(e) {}
+  });
+  const hasLocalData = KEYS.some(k => CACHE[k] !== undefined);
+
+  // Step 2: Try Supabase
+  if(SUPABASE_URL !== 'YOUR_SUPABASE_URL'){
+    try {
+      const { data, error } = await sb.from('alliance_kv').select('*');
+      if(error) throw error;
+      SUPABASE_CONNECTED = true;
+
+      if(data && data.length > 0){
+        // Supabase has data — it is truth, load it
+        data.forEach(row => {
+          try { CACHE[row.key] = JSON.parse(row.value); } catch(e) {}
+        });
+        // Mirror to localStorage
+        KEYS.forEach(k => {
+          if(CACHE[k] !== undefined) try { localStorage.setItem(k, JSON.stringify(CACHE[k])); } catch(e) {}
+        });
+      } else if(hasLocalData){
+        // Supabase is empty but we have local data — auto-push to Supabase
+        console.log('Supabase empty, pushing local data to cloud...');
+        await pushAllToSupabase();
+      }
+    } catch(err) {
+      console.warn('Supabase error:', err.message || err);
+      SUPABASE_CONNECTED = false;
+    }
+  }
+
+  if(loader) loader.style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+async function pushAllToSupabase(){
+  const KEYS=['ac_members','ac_admins','ac_owner','ac_pins','ac_ann','ac_events','ac_resources','ac_feedback'];
+  const rows = KEYS
+    .filter(k => CACHE[k] !== undefined)
+    .map(k => ({ key: k, value: JSON.stringify(CACHE[k]) }));
+  if(!rows.length){
+    showToast('Nothing to push — add data first', 'error');
+    return;
+  }
+  const statusEl = document.getElementById('supabase-status');
+  if(statusEl) statusEl.textContent = 'Pushing ' + rows.length + ' records…';
+  try {
+    // Try upsert one row at a time to isolate failures
+    let failed = 0;
+    for(const row of rows){
+      const { error } = await sb.from('alliance_kv').upsert([row], { onConflict: 'key' });
+      if(error){ console.error('Failed row', row.key, error); failed++; }
+    }
+    if(failed > 0) throw new Error(failed + ' rows failed to write — run GRANT SQL in Supabase');
+    SUPABASE_CONNECTED = true;
+    if(statusEl){ statusEl.innerHTML = '✅ <strong>Synced!</strong> All ' + rows.length + ' records pushed to cloud.'; statusEl.style.borderColor = 'rgba(34,197,94,0.4)'; }
+    showToast('All data synced to cloud ✓', 'success');
+  } catch(err) {
+    const msg = err && err.message ? err.message : JSON.stringify(err);
+    showToast('Sync failed: ' + msg, 'error');
+    console.error('Push failed:', err);
+    document.getElementById('supabase-status').innerHTML = '❌ <strong>Write failed:</strong> ' + msg + '<br><small>Run in Supabase SQL: GRANT ALL PRIVILEGES ON TABLE alliance_kv TO anon;</small>';
+    document.getElementById('supabase-status').style.borderColor = 'rgba(239,68,68,0.4)';
+  }
+}
+const getMembers=()=>LS.get('ac_members')||[];
+const saveMembers=m=>LS.set('ac_members',m);
+const getAdmins=()=>LS.get('ac_admins')||[{username:'admin',password:'alliance123'}];
+const saveAdmins=a=>LS.set('ac_admins',a);
+const getOwner=()=>LS.get('ac_owner')||{username:'JCROCHON',password:'PLNt123!!$$'};
+const saveOwner=o=>LS.set('ac_owner',o);
+const getPINs=()=>LS.get('ac_pins')||{};
+const savePINs=p=>LS.set('ac_pins',p);
+const getAnn=()=>LS.get('ac_ann')||[];
+const saveAnn=a=>LS.set('ac_ann',a);
+const getEvents=()=>LS.get('ac_events')||[];
+const saveEvents=e=>LS.set('ac_events',e);
+const getResources=()=>LS.get('ac_resources')||[];
+const saveResources=r=>LS.set('ac_resources',r);
+const getFeedback=()=>LS.get('ac_feedback')||[];
+const saveFeedback=f=>LS.set('ac_feedback',f);
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentRole=null,currentUser=null,currentMemberId=null;
+let editMemberId=null,editAnnId=null,editEvId=null,replyFbId=null;
+let resFilter='',slotCount=0;
+const mRatings={};
+CATS.forEach(c=>mRatings[c.id]=0);
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today=()=>new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const showToast=(msg,type)=>{
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type||'')+' show';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+};
+const openModal=id=>document.getElementById(id).classList.add('open');
+const closeModal=id=>document.getElementById(id).classList.remove('open');
+const confirm2=(msg,cb)=>{
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-ok').onclick=()=>{closeModal('modal-confirm');cb();};
+  openModal('modal-confirm');
+};
+
+// ══════════════════════════════════════════
+// SCORING
+// ══════════════════════════════════════════
+const getFurnaceDisplay=raw=>{
+  const n=parseInt(raw);if(!n||n<1)return null;
+  if(n<=29)return'F'+n;if(n<=34)return'F30';
+  return'FC'+Math.min(Math.floor((n-35)/5)+1,10);
+};
+const getFurnaceAdj=raw=>{
+  const n=parseInt(raw);if(!n)return 0;
+  if(n<=19)return-20;if(n<=24)return-15;if(n<=29)return-10;if(n<=34)return 0;
+  return Math.min((Math.floor((n-35)/5)+1)*2,20);
+};
+const getPowerAdj=p=>{
+  p=parseFloat(p);if(!p)return 0;
+  if(p<25)return-15;if(p<50)return-10;if(p<100)return-5;if(p<200)return 0;
+  if(p<300)return 2;if(p<400)return 4;if(p<500)return 6;if(p<600)return 8;
+  if(p<700)return 10;if(p<800)return 12;if(p<900)return 14;if(p<=1000)return 16;
+  return 20;
+};
+const calcScore=m=>{
+  let part=0;CATS.forEach(c=>{part+=(m.ratings[c.id]||0)*c.weight;});
+  const fA=getFurnaceAdj(m.furnace),pA=getPowerAdj(m.power);
+  const final=part+fA+pA;
+  // Tier % based on participation only (what members control)
+  // Furnace/power adjustments affect final score but not tier placement
+  const pct=part/MAX_PART*100;
+  return{part,fA,pA,final,pct};
+};
+const getTier=pct=>pct>=75?'Legend':pct>=60?'Elite':pct>=45?'Core':pct>=30?'Active':pct>=20?'Casual':'Needs Improvement';
+const tierClass=t=>'t-'+t.replace(/\s+/g,'').replace('Improvement','');
+const tierColor=t=>({Legend:'#f0a030',Elite:'#a855f7',Core:'#3b82f6',Active:'#22c55e',Casual:'#eab308','Needs Improvement':'#ef4444'}[t]||'var(--text)');
+const adjChip=v=>v===0?'<span class="adj-chip adj-zero">0</span>':v>0?`<span class="adj-chip adj-pos">+${v}</span>`:`<span class="adj-chip adj-neg">${v}</span>`;
+const ETYPE_MAP={
+  'svs':           ['etype-svs',          '⚔️ SVS Castle Battle'],
+  'foundry_l1':    ['etype-foundry_l1',   '🔥 Foundry — Legion 1'],
+  'foundry_l2':    ['etype-foundry_l2',   '🔥 Foundry — Legion 2'],
+  'canyon_l1':     ['etype-canyon_l1',    '🏔 Canyon — Legion 1'],
+  'canyon_l2':     ['etype-canyon_l2',    '🏔 Canyon — Legion 2'],
+  'beartrap_1':    ['etype-beartrap',     '🐻 Bear Trap 1'],
+  'beartrap_2':    ['etype-beartrap',     '🐻 Bear Trap 2'],
+  'fortress':      ['etype-fortress',     '🏰 Fortress Battle'],
+  'stronghold':    ['etype-stronghold',   '🛡️ Stronghold Battle'],
+  'facility':      ['etype-facility',     '🏭 Facility'],
+  'championship':  ['etype-championship', '🏆 Alliance Championship'],
+  'crazyjoe':      ['etype-crazyjoe',     '🔥 Crazy Joe Defense'],
+  'other':         ['etype-other',        '📌 Other'],
+};
+const etypePill=t=>{
+  const[cls,label]=ETYPE_MAP[t]||['etype-other','📌 '+t];
+  return`<span class="ev-type-pill ${cls}">${label}</span>`;
+};
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function gotoPage(pageId){
+  document.querySelectorAll('#mainApp .page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+pageId);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  // Activate matching tab in BOTH nav bars
+  document.querySelectorAll('[data-page="'+pageId+'"]').forEach(t=>t.classList.add('active'));
+  // Also update admin button visibility on page switch
+  const isAdmNav=currentRole==='admin'||currentRole==='owner';
+  const rankAdminBtnsNav=document.getElementById('rankings-admin-btns');
+  if(rankAdminBtnsNav)rankAdminBtnsNav.style.display=isAdmNav?'flex':'none';
+  const annBtn=document.getElementById('btn-new-ann');const evBtn=document.getElementById('btn-new-ev');const resBtn=document.getElementById('btn-new-res');
+  if(annBtn)annBtn.style.display=isAdmNav?'':'none';
+  if(evBtn)evBtn.style.display=isAdmNav?'':'none';
+  if(resBtn)resBtn.style.display=isAdmNav?'':'none';
+
+  const renders={
+    home:renderHome,
+    announcements:renderAnn,
+    events:renderEvents,
+    resources:()=>renderResources(resFilter),
+    rankings:renderRankings,
+    members:renderMembers,
+    feedback:renderFeedbackAdmin,
+    ownerpanel:renderOwnerPanel,
+    mystats:renderMyStats,
+    myfeedback:renderMyFeedback
+  };
+  if(renders[pageId])renders[pageId]();
+}
+
+// ══════════════════════════════════════════
+// LOGIN / LOGOUT
+// ══════════════════════════════════════════
+function switchLTab(tab){
+  ['admin','player'].forEach(t=>{
+    document.getElementById('lt-'+t).classList.toggle('active',t===tab);
+    document.getElementById('lf-'+t).style.display=t===tab?'':'none';
+  });
+  document.getElementById('le-admin').style.display='none';
+  document.getElementById('le-player').style.display='none';
+}
+
+function doLogin(role){
+  if(role==='admin'){
+    const u=document.getElementById('l-auser').value.trim();
+    const p=document.getElementById('l-apass').value;
+    // Check owner first
+    const owner=getOwner();
+    if(u.toLowerCase()===owner.username.toLowerCase()&&p===owner.password){currentRole='owner';currentUser=u;enterApp();return;}
+    // Check admins
+    if(getAdmins().find(a=>a.username===u&&a.password===p)){currentRole='admin';currentUser=u;enterApp();return;}
+    document.getElementById('le-admin').style.display='block';
+    document.getElementById('l-apass').value='';
+  }else{
+    const name=document.getElementById('l-pname').value.trim();
+    const pin=document.getElementById('l-ppin').value.trim();
+    const err=document.getElementById('le-player');
+    err.style.display='none';
+    if(!name){err.textContent='Enter your in-game name.';err.style.display='block';return;}
+    if(!pin){err.textContent='Enter your PIN.';err.style.display='block';return;}
+    const member=getMembers().find(m=>m.name.toLowerCase()===name.toLowerCase());
+    if(!member){err.textContent='Name not found. Contact an admin.';err.style.display='block';return;}
+    currentMemberId=member.id;
+    const pins=getPINs();
+    if(!pins[member.id]){
+      // First login — set PIN
+      currentRole='player';currentUser=member.name;
+      document.getElementById('pin1').value='';
+      document.getElementById('pin2').value='';
+      document.getElementById('pin-err').style.display='none';
+      openModal('modal-pin');
+    }else{
+      if(pins[member.id]!==pin){err.textContent='Incorrect PIN.';err.style.display='block';return;}
+      currentRole='player';currentUser=member.name;
+      enterApp();
+    }
+  }
+}
+
+function savePIN(){
+  const p1=document.getElementById('pin1').value.trim();
+  const p2=document.getElementById('pin2').value.trim();
+  const err=document.getElementById('pin-err');
+  err.style.display='none';
+  if(!p1||p1.length<4){err.textContent='PIN must be at least 4 digits.';err.style.display='block';return;}
+  if(p1!==p2){err.textContent='PINs do not match.';err.style.display='block';return;}
+  if(!/^\d+$/.test(p1)){err.textContent='Numbers only.';err.style.display='block';return;}
+  const pins=getPINs();pins[currentMemberId]=p1;savePINs(pins);
+  closeModal('modal-pin');
+  enterApp();
+  showToast('PIN set! Welcome, '+currentUser,'success');
+}
+
+function enterApp(){
+  // Show the right screen
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').classList.add('active');
+  document.getElementById('mainApp').style.display='flex';
+
+  // Role badge
+  const badge=document.getElementById('nav-role-badge');
+  if(currentRole==='owner'){badge.textContent='👑 '+currentUser;badge.className='nav-role role-owner';}
+  else if(currentRole==='admin'){badge.textContent='🛡️ '+currentUser;badge.className='nav-role role-admin';}
+  else{badge.textContent='👤 '+currentUser;badge.className='nav-role role-player';}
+
+  const isAdm=currentRole==='admin'||currentRole==='owner';
+
+  // Show/hide admin second nav bar
+  const adminBar=document.getElementById('admin-nav-bar');
+  if(adminBar)adminBar.style.display=isAdm?'block':'none';
+
+  // Admin tabs in second bar
+  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display=isAdm?'':'none');
+  document.querySelectorAll('.owner-tab').forEach(t=>t.style.display=currentRole==='owner'?'':'none');
+
+  // My Stats tab: players only
+  document.querySelectorAll('.player-tab').forEach(t=>t.style.display=currentRole==='player'?'':'none');
+
+  // My Feedback tab — players only (admins use Member Feedback in admin bar)
+  const myFbTab=document.getElementById('tab-myfeedback');
+  if(myFbTab)myFbTab.style.display=currentRole==='player'?'':'none';
+  // My Stats tab — players only
+  const myStatsTab=document.getElementById('tab-mystats');
+  if(myStatsTab)myStatsTab.style.display=currentRole==='player'?'':'none';
+
+  // Rankings admin buttons
+  const rankAdminBtns=document.getElementById('rankings-admin-btns');
+  if(rankAdminBtns)rankAdminBtns.style.display=isAdm?'flex':'none';
+
+  // Show/hide admin-only action buttons on content pages
+  document.getElementById('btn-new-ann').style.display=isAdm?'':'none';
+  document.getElementById('btn-new-ev').style.display=isAdm?'':'none';
+  document.getElementById('btn-new-res').style.display=isAdm?'':'none';
+
+  updateFbBadge();
+  gotoPage('home');
+}
+
+function logout(){
+  currentRole=null;currentUser=null;currentMemberId=null;
+  ['l-auser','l-apass','l-pname','l-ppin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('le-admin').style.display='none';
+  document.getElementById('le-player').style.display='none';
+  document.getElementById('mainApp').classList.remove('active');
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('loginScreen').classList.add('active');
+  
+  switchLTab('admin');
+}
+
+// ══════════════════════════════════════════
+// HOME PAGE
+// ══════════════════════════════════════════
+function renderHome(){
+  const greet=document.getElementById('home-greeting');
+  if(greet)greet.textContent='Welcome'+(currentUser?', '+currentUser:'')+' 👋';
+
+  const ann=getAnn();
+  const events=getEvents();
+  const res=getResources();
+  const sorted=ann.filter(a=>a.pinned).concat(ann.filter(a=>!a.pinned));
+  const isPlayer=currentRole==='player';
+
+  // ── PLAYER VIEW: ranking list + personal score breakdown ──
+  if(isPlayer && currentMemberId){
+    const members=getMembers().map(m=>({...m,...calcScore(m),tier:getTier(calcScore(m).pct)})).sort((a,b)=>b.final-a.final);
+    const me=members.find(m=>m.id===currentMemberId);
+    const myRank=members.findIndex(m=>m.id===currentMemberId)+1;
+
+    // Personal score breakdown card
+    let myCard='<p style="color:var(--text3);font-size:13px">Your profile has not been set up yet. Contact your admin.</p>';
+    if(me){
+      const bc=tierColor(me.tier);
+      const fd=getFurnaceDisplay(me.furnace);
+      myCard=`
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="font-size:36px;font-weight:800;color:${bc}">#${myRank}</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:800">${esc(me.name)}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;align-items:center">
+              <span class="tier-pill ${tierClass(me.tier)}">${me.tier}</span>
+              ${fd?`<span class="furnace-badge">🔥${fd}</span>`:''}
+              ${me.power?`<span style="font-size:12px;color:var(--text2);padding:2px 8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border)">${parseFloat(me.power).toLocaleString()}M Power</span>`:''}
+              ${me.gamerid?`<span style="font-size:11px;color:var(--text3)">ID: ${esc(me.gamerid)}</span>`:''}
+              ${me.arank?`<span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(240,160,48,0.15);color:var(--gold);border:1px solid rgba(240,160,48,0.3)">${esc(me.arank)}</span>`:''}
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+          <div class="p-stat"><div class="p-stat-label">Final Score</div><div class="p-stat-val" style="color:${bc}">${me.final}</div></div>
+          <div class="p-stat"><div class="p-stat-label">Participation</div><div class="p-stat-val" style="color:var(--ice)">${me.part}/${MAX_PART}</div></div>
+          <div class="p-stat"><div class="p-stat-label">Score %</div><div class="p-stat-val" style="color:${bc}">${me.pct.toFixed(1)}%</div></div>
+        </div>
+        <div style="margin-bottom:8px">
+          ${CATS.map(c=>{
+            const val=me.ratings[c.id]||0;
+            const pct=val/5*100;
+            const cc=val<=1?'var(--need)':val<=2?'var(--casu)':val<=3?'var(--core)':val<=4?'var(--actv)':'var(--elite)';
+            return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+              <div style="flex:1;font-size:12px;color:var(--text2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.label}</div>
+              <div class="bar-track" style="width:80px;flex-shrink:0"><div class="bar-fill" style="width:${pct}%;background:${cc}"></div></div>
+              <div style="font-size:12px;font-weight:700;color:${cc};min-width:24px;text-align:right">${val}/5</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <button class="btn btn-sm" data-goto="mystats" style="margin-top:4px">📊 Full Stats & Tips</button>`;
+    }
+
+    // Alliance ranking list — names only
+    const rankListHTML=members.slice(0,20).map((m,i)=>{
+      const bc=tierColor(m.tier);
+      const isMe2=m.id===currentMemberId;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);${isMe2?'background:rgba(58,123,213,0.1);border:1px solid rgba(58,123,213,0.25);':'border:1px solid transparent;'}margin-bottom:4px">
+        <span class="rank-num ${i<3?'r'+(i+1):''}" style="flex-shrink:0">${i+1}</span>
+        <span style="font-size:13px;font-weight:${isMe2?'800':'600'};color:${isMe2?'var(--ice)':'var(--text)'};flex:1">${esc(m.name)}${isMe2?' <span style="font-size:10px;color:var(--ice)">YOU</span>':''} ${m.arank?`<span style="font-size:10px;color:var(--gold);font-weight:700">${esc(m.arank)}</span>`:''}</span>
+        <span class="tier-pill ${tierClass(m.tier)}">${m.tier}</span>
+      </div>`;
+    }).join('');
+
+    document.getElementById('home-snippets').innerHTML=`
+      <div class="snippet-card" style="grid-column:1/-1">
+        <div class="snippet-header" style="margin-bottom:14px">
+          <div class="snippet-title">⚔️ My Ranking</div>
+          <span class="snippet-more" data-goto="mystats">Full Stats →</span>
+        </div>
+        ${myCard}
+      </div>
+      <div class="snippet-card" style="grid-column:1/-1">
+        <div class="snippet-header" style="margin-bottom:12px">
+          <div class="snippet-title">🏆 Alliance Rankings <span style="color:var(--text3);font-weight:400;font-size:11px">(${members.length} members)</span></div>
+          <span class="snippet-more" data-goto="rankings">Full Rankings →</span>
+        </div>
+        ${members.length?rankListHTML:'<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">No members ranked yet.</p>'}
+        ${members.length>20?`<div style="text-align:center;margin-top:8px"><button class="btn btn-sm" data-goto="rankings">View all ${members.length} members →</button></div>`:''}
+      </div>
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <div class="snippet-title">📢 Announcements <span style="color:var(--text3);font-weight:400;font-size:11px">(${ann.length})</span></div>
+          <span class="snippet-more" data-goto="announcements">View all →</span>
+        </div>
+        ${sorted.slice(0,2).length?sorted.slice(0,2).map(a=>`<div class="snippet-item"><div class="snippet-item-title">${esc(a.title)}</div><div class="snippet-item-sub">${esc(a.body.substring(0,80))}${a.body.length>80?'…':''}</div></div>`).join(''):'<div class="empty-msg" style="padding:16px 0"><p style="font-size:13px">No new announcements</p></div>'}
+      </div>
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <div class="snippet-title">📅 Events <span style="color:var(--text3);font-weight:400;font-size:11px">(${events.length})</span></div>
+          <span class="snippet-more" data-goto="events">View all →</span>
+        </div>
+        ${events.slice(0,2).length?events.slice(0,2).map(ev=>`<div class="snippet-item"><div class="snippet-item-title">${esc(ev.name)}</div><div class="snippet-item-sub">${ev.date}${ev.time?' at '+ev.time:''}</div></div>`).join(''):'<div class="empty-msg" style="padding:16px 0"><p style="font-size:13px">No new events</p></div>'}
+      </div>`;
+
+    // Scoring guide still renders below
+    const guide=document.getElementById('home-scoring-guide');
+    if(guide) guide.innerHTML=''; // players don't need scoring guide on home
+    return;
+  }
+
+  // ── ADMIN VIEW ──
+  const snippets=[
+    {
+      emoji:'📢',label:'Announcements',page:'announcements',
+      count:ann.length,empty:'No new announcements',
+      items:sorted.slice(0,2).map(a=>`
+        <div class="snippet-item">
+          <div class="snippet-item-title">${esc(a.title)}</div>
+          <div class="snippet-item-sub">${esc(a.body.substring(0,80))}${a.body.length>80?'…':''}</div>
+        </div>`)
+    },
+    {
+      emoji:'📅',label:'Events',page:'events',
+      count:events.length,empty:'No new events',
+      items:events.slice(0,2).map(ev=>{
+        const totalSpots=ev.participation?(ev.slots||[]).reduce((s,sl)=>s+sl.max,0):0;
+        const totalFilled=ev.participation?(ev.slots||[]).reduce((s,sl)=>s+(sl.members||[]).length,0):0;
+        return`<div class="snippet-item">
+          <div class="snippet-item-title">${esc(ev.name)}</div>
+          <div class="snippet-item-sub">${ev.date}${ev.time?' at '+ev.time:''}${ev.participation?' — '+totalFilled+'/'+totalSpots+' signed up':''}</div>
+        </div>`;
+      })
+    },
+    {
+      emoji:'📚',label:'Resources',page:'resources',
+      count:res.length,empty:'No new resources',
+      items:res.slice(0,2).map(r=>`
+        <div class="snippet-item">
+          <div class="snippet-item-title">${esc(r.title)}</div>
+          <div class="snippet-item-sub">${r.desc?esc(r.desc.substring(0,70))+(r.desc.length>70?'…':''):r.type}</div>
+        </div>`)
+    }
+  ];
+
+  document.getElementById('home-snippets').innerHTML=snippets.map(s=>`
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <div class="snippet-title"><span class="emoji">${s.emoji}</span> ${s.label} <span style="color:var(--text3);font-weight:400;font-size:11px">(${s.count})</span></div>
+        <span class="snippet-more" data-goto="${s.page}">View all →</span>
+      </div>
+      ${s.items.length?s.items.join(''):`<div class="empty-msg" style="padding:20px 0"><p style="color:var(--text3);font-size:13px">${s.empty}</p></div>`}
+    </div>`).join('');
+
+  // Scoring guide at bottom of home page
+  const guide = document.getElementById('home-scoring-guide');
+  if(guide) guide.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px">📊 Alliance Ranking Scale</div>
+      <div style="font-size:13px;color:var(--text2)">How scores are calculated and what each tier means</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+
+      <!-- Tier legend -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:12px">Tier Rankings</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Legend">🏆 Legend</span><span style="font-size:13px;color:var(--text2)">75–100%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Elite">💜 Elite</span><span style="font-size:13px;color:var(--text2)">60–74%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Core">💙 Core</span><span style="font-size:13px;color:var(--text2)">45–59%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Active">💚 Active</span><span style="font-size:13px;color:var(--text2)">30–44%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Casual">💛 Casual</span><span style="font-size:13px;color:var(--text2)">20–29%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="tier-pill t-Needs">❤️ Needs Improvement</span><span style="font-size:13px;color:var(--text2)">&lt;20%</span></div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">Score = <strong style="color:var(--text)">Points Earned ÷ Available Points × 100</strong> &nbsp;·&nbsp; Major events carry greater weight &nbsp;·&nbsp; Approved absences (work, vacation, emergencies) are accounted for</div>
+      </div>
+
+      <!-- Participation weights -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:12px">Participation Categories</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">SVS Prep Scores</span><span style="color:var(--ice);font-weight:700">×5</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">SVS Castle Participation</span><span style="color:var(--ice);font-weight:700">×5</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Foundry &amp; Canyon Clash</span><span style="color:var(--ice);font-weight:600">×4</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Bear Trap Participation</span><span style="color:var(--ice);font-weight:600">×4</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Bear Trap Squads</span><span style="color:var(--ice)">×3</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Alliance Championship</span><span style="color:var(--ice)">×3</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Fortress / Stronghold</span><span style="color:var(--ice)">×2</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Activity</span><span style="color:var(--ice)">×2</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Communication</span><span style="color:var(--ice)">×1</span></div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">Each rated 0–5 &nbsp;·&nbsp; 0=None &nbsp;·&nbsp; 3=Average &nbsp;·&nbsp; 5=Excellent</div>
+      </div>
+
+      <!-- Adjustments -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:12px">Score Adjustments</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Furnace Level</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">F1–F19</span><span style="color:#f87171;font-weight:700">−20</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">F20–F24</span><span style="color:#f87171">−15</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">F25–F29</span><span style="color:#f87171">−10</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">F30</span><span style="color:var(--text3)">0</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">FC1–FC5</span><span style="color:#4ade80">+2 to +10</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">FC6–FC10</span><span style="color:#4ade80;font-weight:700">+12 to +20</span></div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Power</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">&lt;25M</span><span style="color:#f87171;font-weight:700">−15</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">100M–200M</span><span style="color:var(--text3)">0</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">&gt;1B</span><span style="color:#4ade80;font-weight:700">+20</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// ANNOUNCEMENTS
+// ══════════════════════════════════════════
+function renderAnn(){
+  const ann=getAnn();
+  const sorted=ann.filter(a=>a.pinned).concat(ann.filter(a=>!a.pinned));
+  const isAdm=currentRole==='admin'||currentRole==='owner';
+  const list=document.getElementById('ann-list');
+  if(!sorted.length){
+    list.innerHTML='<div class="empty-msg"><div class="emoji">📢</div><p>No new announcements</p></div>';
+    return;
+  }
+  list.innerHTML=sorted.map(a=>`
+    <div class="ann-card${a.pinned?' pinned':''}">
+      <div class="ann-meta">
+        <span class="ann-type-pill atype-${a.type}">${a.type}</span>
+        ${a.pinned?'<span class="pin-mark">📌</span>':''}
+        <span class="ann-date">${a.date}</span>
+        ${isAdm?`<div style="margin-left:auto;display:flex;gap:6px">
+          <button class="icon-btn" data-action="edit-ann" data-id="${a.id}" title="Edit">✏️</button>
+          <button class="icon-btn del" data-action="del-ann" data-id="${a.id}" title="Delete">🗑</button>
+        </div>`:''}
+      </div>
+      <div class="ann-title">${esc(a.title)}</div>
+      <div class="ann-body" style="margin-top:6px">${esc(a.body)}</div>
+      ${a.link?`<a href="${esc(a.link)}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--ice);margin-top:8px">🔗 Open Link</a>`:''}
+    </div>`).join('');
+}
+
+function openAnnModal(id){
+  editAnnId=id||null;
+  document.getElementById('ann-modal-title').textContent=id?'Edit Announcement':'New Announcement';
+  if(id){
+    const a=getAnn().find(x=>x.id===id);
+    if(a){
+      document.getElementById('ann-type').value=a.type;
+      document.getElementById('ann-title').value=a.title;
+      document.getElementById('ann-body').value=a.body;
+      document.getElementById('ann-link').value=a.link||'';
+      document.getElementById('ann-pinned').checked=!!a.pinned;
+    }
+  }else{
+    document.getElementById('ann-type').value='announcement';
+    ['ann-title','ann-body','ann-link'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('ann-pinned').checked=false;
+  }
+  updateCharCount();
+  openModal('modal-ann');
+}
+
+function updateCharCount(){
+  const ta=document.getElementById('ann-body');
+  const cc=document.getElementById('ann-char-count');
+  if(!ta||!cc)return;
+  const len=ta.value.length;
+  cc.textContent=len+' / 500';
+  cc.className='char-count'+(len>450&&len<=500?' char-warn':len>500?' char-over':'');
+}
+
+function saveAnnouncement(){
+  const title=document.getElementById('ann-title').value.trim();
+  const body=document.getElementById('ann-body').value.trim();
+  if(!title||!body){showToast('Title and message required.','error');return;}
+  if(body.length>500){showToast('Message exceeds 500 characters.','error');return;}
+  const ann=getAnn();
+  const entry={id:editAnnId||uid(),type:document.getElementById('ann-type').value,title,body,link:document.getElementById('ann-link').value.trim(),pinned:document.getElementById('ann-pinned').checked,date:today()};
+  if(editAnnId){const i=ann.findIndex(a=>a.id===editAnnId);if(i>-1)ann[i]=entry;}
+  else ann.unshift(entry);
+  saveAnn(ann);closeModal('modal-ann');renderAnn();renderHome();
+  showToast('Announcement posted.','success');
+}
+
+function deleteAnnouncement(id){
+  confirm2('Delete this announcement?',()=>{
+    saveAnn(getAnn().filter(a=>a.id!==id));
+    renderAnn();renderHome();showToast('Deleted.','success');
+  });
+}
+
+// ══════════════════════════════════════════
+// EVENTS
+// ══════════════════════════════════════════
+function renderEvents(){
+  const events=getEvents();
+  const isAdm=currentRole==='admin'||currentRole==='owner';
+  const list=document.getElementById('ev-list');
+  if(!events.length){
+    list.innerHTML='<div class="empty-msg"><div class="emoji">📅</div><p>No new events</p></div>';
+    return;
+  }
+  list.innerHTML=events.map(ev=>buildEvCard(ev,isAdm,currentUser)).join('');
+}
+
+function buildCJSignup(ev,isAdm,playerName){
+  if(isAdm||!ev.slots||!ev.slots.length)return '';
+  let out='<div style="border-top:1px solid rgba(239,68,68,0.2);padding-top:14px;margin-top:4px"><div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">My Status for This Event</div>';
+  ev.slots.forEach(sl=>{
+    const members=sl.members||[];
+    const isMine=playerName&&members.includes(playerName);
+    const full=members.length>=sl.max;
+    let btn='';
+    if(playerName){
+      if(isMine)btn='<button class="btn btn-sm btn-danger" data-action="unsignup" data-evid="'+ev.id+'" data-slot="'+esc(sl.name)+'" data-player="'+esc(playerName)+'">✕ Remove Me</button>';
+      else if(full)btn='<span style="font-size:12px;color:var(--need);font-weight:600">Full</span>';
+      else btn='<button class="btn btn-sm btn-success" data-action="signup" data-evid="'+ev.id+'" data-slot="'+esc(sl.name)+'" data-player="'+esc(playerName)+'">✔ Join</button>';
+    }
+    out+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><span style="font-size:13px;font-weight:700;color:var(--text)">'+esc(sl.name)+'</span><span style="font-size:12px;color:var(--text3)">'+members.length+'/'+(sl.max>=999?'∞':sl.max)+' signed up</span>'+btn+'</div>';
+  });
+  out+='</div>';
+  return out;
+}
+
+function buildEvCard(ev,isAdm,playerName){
+  const slots=ev.slots||[];
+  const b=ev.battle||{};
+  const type=ev.type||'';
+  const typeText=ev.typeText||type;
+
+  // ── Type flags for legacy special events ──
+  const isBearTrap=type==='beartrap_1'||type==='beartrap_2';
+  const isCrazyJoe=type==='crazyjoe';
+  const isChamp=type==='championship';
+
+  // ── Type pill ──
+  const pillLabel=typeText||'Event';
+  const typePill='<span class="ev-type-pill etype-other" style="text-transform:none;font-size:11px">'+esc(pillLabel)+'</span>';
+
+  // ── Battle configs panel (new system) ──
+  let battlePanel='';
+    if(ev.battleConfigs&&ev.battleConfigs.length){
+    battlePanel=ev.battleConfigs.map((cfg,idx)=>{
+      const troopEmoji={'infantry':'🗡️','lancers':'🏹','marksmen':'🎯'}[cfg.topTroop]||'';
+      if(!cfg.battleType&&(!cfg.subItems||!cfg.subItems.length))return'';
+      const subHtml=(cfg.subItems||[]).map(si=>{
+        if(si.type==='ratio'&&(si.infantry||si.lancers||si.marksmen)){
+          return'<div style="margin-top:10px">'
+            +'<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:6px">🗡️ Troop Ratio</div>'
+            +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+              +'<div style="text-align:center;padding:6px 12px;background:var(--bg4);border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:10px;color:var(--text3)">🗡️ INF</div><div style="font-size:16px;font-weight:800">'+(si.infantry||0)+'%</div></div>'
+              +'<div style="text-align:center;padding:6px 12px;background:var(--bg4);border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:10px;color:var(--text3)">🏹 LAN</div><div style="font-size:16px;font-weight:800">'+(si.lancers||0)+'%</div></div>'
+              +'<div style="text-align:center;padding:6px 12px;background:var(--bg4);border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:10px;color:var(--text3)">🎯 MRK</div><div style="font-size:16px;font-weight:800">'+(si.marksmen||0)+'%</div></div>'
+            +'</div></div>';
+        }
+        if(si.type==='hero'&&si.heroName)return'<div style="margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">🦸 Hero Setup</div><div style="font-size:14px;font-weight:700;color:var(--ice)">'+esc(si.heroName)+(si.heroPos?' — '+esc(si.heroPos):'')+'</div></div>';
+        if(si.type==='rally'&&si.rallyValue)return'<div style="margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">🛡️ Rally Capacity</div><div style="font-size:14px;font-weight:700;color:#60a5fa">'+esc(si.rallyValue)+'</div></div>';
+        // Lane Choice
+      if(si.type==='lane'){
+        const lanes=['Left','Middle','Right'];
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">🏁 Lane Choice</span>'
+          +'<button type="button" class="icon-btn" onclick="removeBCSubItem(\''+cfg.id+'\',\''+si.id+'\')">✕</button></div>'
+          +'<div style="display:flex;gap:8px">'
+          +lanes.map(l=>'<button type="button" class="bc-troop-btn'+(si.lane===l?' active':'')+'" onclick="setBCLane(\''+si.id+'\',\''+l+'\')">'+l+'</button>').join('')
+          +'</div>'
+        +'</div>';
+      }
+      // Buff Recommendations
+      if(si.type==='buffs'){
+        const BUFF_LIST=[
+          ['lethality',"⚡ Troops\' Lethality"],['attack',"⚔️ Troops\' Attack"],
+          ['defense',"🛡️ Troops\' Defense"],['health',"❤️ Troops\' Health"],
+          ['enemy_atk',"🔻 Enemy Attack"],['enemy_def',"🔻 Enemy Defense"],
+          ['deploy',"🚀 Deployment Capacity"]
+        ];
+        const selected=si.buffs||[];
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">✨ Buff Recommendations</span>'
+          +'<button type="button" class="icon-btn" onclick="removeBCSubItem(\''+cfg.id+'\',\''+si.id+'\')">✕</button></div>'
+          +'<div style="display:flex;flex-direction:column;gap:7px">'
+          +BUFF_LIST.map(([key,label])=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">'
+            +'<input type="checkbox" data-siid="'+si.id+'" data-bkey="'+key+'" '+(selected.includes(key)?'checked':'')+' onchange="toggleBuff(event)" style="width:15px;height:15px;flex-shrink:0">'
+            +label+'</label>').join('')
+          +'</div>'
+        +'</div>';
+      }
+      return'';
+      }).join('');
+      return'<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:10px">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">'
+          +(cfg.battleType?'<span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;background:var(--bg4);color:var(--text);border:1px solid var(--border2)">'+esc(cfg.battleType)+'</span>':'')
+          +(cfg.topTroop?'<span style="font-size:12px;color:var(--text2)">Top Troop: <strong>'+troopEmoji+' '+cfg.topTroop.charAt(0).toUpperCase()+cfg.topTroop.slice(1)+'</strong></span>':'')
+        +'</div>'
+        +subHtml
+      +'</div>';
+    }).join('');
+  } else if(!isBearTrap&&!isCrazyJoe&&!isChamp&&b.hero){
+    // Legacy battle data
+    battlePanel='<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:10px">'
+      +(b.hero?'<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Lead Hero</div><div style="font-size:14px;font-weight:700;color:var(--ice)">'+esc(b.hero)+'</div></div>':'')
+      +(b.rallyCapacity?'<div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">🛡️ Rally Capacity</div><div style="font-size:14px;font-weight:700;color:#60a5fa">'+esc(b.rallyCapacity)+'</div></div>':'')
+    +'</div>';
+  }
+
+  // ── Sign-up section ──
+  let signupSection='';
+  if(!isBearTrap&&!isCrazyJoe){
+    const totalFilled=slots.reduce((s,sl)=>s+(sl.members||[]).length,0);
+    const totalSpots=slots.reduce((s,sl)=>s+(sl.max>=999?0:sl.max),0);
+    if(slots.length){
+      signupSection='<div class="slot-section">'
+        +'<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">✅ Registration'+(totalSpots>0?' — '+totalFilled+'/'+totalSpots+' signed up':'')+'</div>'
+        +slots.map(sl=>{
+          const members=sl.members||[];
+          const isUnlimited=sl.max>=999;
+          const pct=isUnlimited?0:Math.min(100,members.length/sl.max*100);
+          const full=!isUnlimited&&members.length>=sl.max;
+          const isMine=playerName&&members.includes(playerName);
+          const tagHtml=members.length?members.map(n=>'<span class="slot-tag'+(playerName&&n===playerName?' me':'')+'">'+ esc(n)+'</span>').join(''):'<span style="font-size:11px;color:var(--text3)">No sign-ups yet</span>';
+          let btn='';
+          if(!isAdm&&playerName){
+            if(isMine)btn='<button class="btn btn-sm btn-danger" data-action="unsignup" data-evid="'+ev.id+'" data-slot="'+esc(sl.name)+'" data-player="'+esc(playerName)+'">✕ Remove</button>';
+            else if(full)btn='<span style="font-size:12px;color:var(--need);font-weight:600">Full</span>';
+            else btn='<button class="btn btn-sm btn-success" data-action="signup" data-evid="'+ev.id+'" data-slot="'+esc(sl.name)+'" data-player="'+esc(playerName)+'">✔ '+(sl.name==='Will Not Participate'?'Mark No':'Join')+'</button>';
+          }
+          return'<div class="slot-box">'
+            +'<div class="slot-name">'+esc(sl.name)+(isUnlimited?'':' <span style="color:var(--text3);font-weight:400">('+sl.max+' spots)</span>')+'</div>'
+            +(!isUnlimited?'<div class="slot-bar-track"><div class="slot-bar-fill" style="width:'+pct+'%;background:'+(full?'var(--need)':'var(--pink)')+'"></div></div>':'')
+            +'<div class="slot-count">'+members.length+(isUnlimited?'':'/'+sl.max)+' signed up'+(isUnlimited?'':' · '+Math.max(0,sl.max-members.length)+' remaining')+'</div>'
+            +'<div class="slot-tags">'+tagHtml+'</div>'+btn
+          +'</div>';
+        }).join('')
+      +'</div>';
+    }
+  }
+
+  // ── Special event static panels ──
+  let specialPanel='';
+  if(isBearTrap){
+    specialPanel='<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r);padding:16px;margin-top:10px">'
+      +'<div style="font-size:14px;font-weight:800;color:#f87171;margin-bottom:14px">&#x1F43B;&#x1F43B; BEAR TRAP RALLY LEAD HEROES &#x1F43B;&#x1F43B;</div>'
+      +'<div style="margin-bottom:14px">'
+        +'<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">&#x1F6A9; Rally Leader Formation</div>'
+        +'<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">&#x1F6E1;&#xFE0F; Infantry (Slot 1)</div><div style="font-size:13px;color:var(--text2);line-height:1.85;padding-left:8px">&#x2705; Jeronimo<br>&#x2705; Flint<br>&#x2705; Sergey</div></div>'
+        +'<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">&#x1F3F9; Lancers (Slot 2)</div><div style="font-size:13px;color:var(--text2);line-height:1.85;padding-left:8px">&#x2705; Mia<br>&#x2705; Molly</div></div>'
+        +'<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">&#x1F3AF; Marksmen (Slot 3)</div><div style="font-size:13px;color:var(--text2);line-height:1.85;padding-left:8px">&#x2705; Alonso<br>&#x2705; Bahiti</div></div>'
+        +'<div style="font-size:13px;color:var(--text2)">&#x1F6AB; No Gina &nbsp; &#x1F6AB; No Blue Heroes</div>'
+      +'</div>'
+      +'<div style="margin-bottom:14px;padding-top:12px;border-top:1px solid rgba(239,68,68,0.2)">'
+        +'<div style="font-size:13px;font-weight:700;margin-bottom:8px">&#x2694;&#xFE0F; Rally Joiners — LEFT Slot Only</div>'
+        +'<div style="font-size:13px;color:var(--text2);line-height:1.85;padding-left:8px">&#x2705; Jessie + any 2 heroes<br>&#x2705; Jasser + any 2 heroes<br>&#x2705; Seo-Yoon + any 2 heroes<br>&#x2705; Philly + any 2 heroes</div>'
+        +'<div style="font-size:13px;color:var(--casu);margin-top:8px">&#x2757; No heroes? Send troops only (NO HEROES)</div>'
+      +'</div>'
+      +'<div style="padding-top:12px;border-top:1px solid rgba(239,68,68,0.25);font-size:13px;color:var(--text2);line-height:1.85">'
+        +'&#x1F6AB; No Gina &nbsp; &#x1F6AB; No Blue Heroes<br>'
+        +'<strong style="color:#f87171">&#x1F6AB; Wrong heroes = KICKED FROM THE RALLY &#x1F6AB;</strong>'
+      +'</div>'
+      +'<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(239,68,68,0.15);font-size:12px;color:var(--text3);line-height:1.7">'
+        +'&#x26A0;&#xFE0F; Rally Leaders must check all joiners and kick incorrect heroes.<br>'
+        +'&#x1F525;&#x1F43B; Let us maximize our Bear Trap damage!'
+      +'</div>'
+    +'</div>';
+  } else if(isCrazyJoe){
+    specialPanel='<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r);padding:16px;margin-top:10px">'
+      +'<div style="font-size:14px;font-weight:800;color:#f87171;margin-bottom:14px">&#x1F525;&#x1F525; CRAZY JOE DEFENSE STRATEGY &#x1F525;&#x1F525;</div>'
+      +'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:6px">&#x1F3E0; City Defense</div><div style="font-size:13px;color:var(--text2);line-height:1.9">&#x2705; Send out <strong>ALL Infantry and Lancers</strong> to reinforce other cities.<br>&#x2705; Leave <strong>ALL Marksmen</strong> at home.<br>&#x2705; Keep your <strong>top heroes in your Barricade</strong>.</div></div>'
+      +'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:6px">&#x1F3DB;&#xFE0F; HQ Configuration</div><div style="font-size:13px;color:var(--text2);line-height:1.9">&#x2705; Send <strong>ONLY Marksmen + Jessie</strong> to Alliance Headquarters.<br>&#x2705; Maximum reinforcement march size: <strong style="color:#22c55e">65,000 troops</strong>.<br>&#x1F6AB; Do NOT send Infantry or Lancers to HQ.<br>&#x1F6AB; Do NOT send other heroes.</div></div>'
+      +'<div style="padding-top:10px;border-top:1px solid rgba(239,68,68,0.25);font-size:12px;color:var(--text2);line-height:1.7">&#x26A0;&#xFE0F; Recall troops after HQ waves. Follow strategy to maximize Crazy Joe scores and rewards! &#x1F525;&#x1F3C6;</div>'
+      +buildCJSignup(ev,isAdm,playerName)
+    +'</div>';
+  }
+
+  // ── Championship (legacy stays perfect) ──
+  let champPanel='';
+  if(isChamp&&(b.lane||b.heroInfantry||b.heroLancer||b.heroMarksmen||b.infantry||b.lancers||b.marksmen)){
+    champPanel='<div style="background:var(--bg3);border:1px solid rgba(59,130,246,0.3);border-radius:var(--r);padding:14px;margin-top:10px">'
+      +'<div style="font-size:11px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.09em;margin-bottom:12px">&#x1F3C6; Championship Configuration</div>'
+      +(b.lane?'<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Lane</div><div style="font-size:14px;font-weight:700;color:var(--gold)">'+esc(b.lane)+'</div></div>':'')
+      +(b.heroInfantry||b.heroLancer||b.heroMarksmen?'<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Hero Leads</div><div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px">'+(b.heroInfantry?'<span>&#x1F5E1;&#xFE0F; <strong>'+esc(b.heroInfantry)+'</strong></span>':'')+(b.heroLancer?'<span>&#x1F3F9; <strong>'+esc(b.heroLancer)+'</strong></span>':'')+(b.heroMarksmen?'<span>&#x1F3AF; <strong>'+esc(b.heroMarksmen)+'</strong></span>':'')+'</div></div>':'')
+      +(b.infantry||b.lancers||b.marksmen?'<div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Troop Ratio</div><div style="font-size:13px;font-weight:700">&#x1F5E1;&#xFE0F; '+(b.infantry||0)+'% &nbsp;&#xB7;&nbsp; &#x1F3F9; '+(b.lancers||0)+'% &nbsp;&#xB7;&nbsp; &#x1F3AF; '+(b.marksmen||0)+'%</div></div>':'')
+    +'</div>';
+  }
+
+  return'<div class="ev-card">'
+    +'<div class="ev-head">'
+      +'<div style="flex:1">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">'+typePill+'<span class="ev-name">'+esc(ev.name)+'</span></div>'
+        +'<div class="ev-meta">&#x1F4C5; '+ev.date+(ev.time?' at '+ev.time:'')+'</div>'
+      +'</div>'
+      +(isAdm?'<div style="display:flex;gap:6px;flex-shrink:0"><button class="icon-btn" data-action="edit-ev" data-id="'+ev.id+'" title="Edit">&#x270F;&#xFE0F;</button><button class="icon-btn del" data-action="del-ev" data-id="'+ev.id+'" title="Delete">&#x1F5D1;</button></div>':'')
+    +'</div>'
+    +(ev.desc?'<div class="ev-desc">'+esc(ev.desc)+'</div>':'')
+    +battlePanel
+    +champPanel
+    +specialPanel
+    +signupSection
+  +'</div>';
+}
+
+
+
+function togglePartOption(opt){
+  const sub=document.getElementById('pt-'+opt+'-sub');
+  const cb=document.getElementById('pt-'+opt);
+  if(sub&&cb)sub.style.display=cb.checked?'block':'none';
+}
+
+// ── Battle Config State ──
+let bcList=[];
+let bcCounter=0;
+let siCounter=0; // sub-item counter
+
+function setBCLane(siId,lane){
+  bcList.forEach(function(cfg){var si=cfg.subItems.find(function(s){return s.id===siId;});if(si)si.lane=lane;});
+  var block=document.getElementById('si-'+siId);
+  if(block)block.querySelectorAll('[data-action="bc-set-lane"]').forEach(function(b){b.className='bc-troop-btn'+(b.dataset.lane===lane?' active':'');});
+}
+
+function toggleBuff(e){
+  const siId=e.target.dataset.siid;
+  const key=e.target.dataset.bkey;
+  bcList.forEach(cfg=>{
+    const si=cfg.subItems.find(s=>s.id===siId);
+    if(si){
+      if(!si.buffs)si.buffs=[];
+      if(e.target.checked){if(!si.buffs.includes(key))si.buffs.push(key);}
+      else si.buffs=si.buffs.filter(b=>b!==key);
+    }
+  });
+}
+
+function addBattleConfig(){
+  bcCounter++;
+  const id='bc'+bcCounter;
+  bcList.push({id, battleType:'', topTroop:'infantry', subItems:[]});
+  renderBattleConfigs();
+}
+
+function removeBattleConfig(id){
+  bcList=bcList.filter(c=>c.id!==id);
+  renderBattleConfigs();
+}
+
+function setBCTroop(bcId, troop){
+  const cfg=bcList.find(c=>c.id===bcId);
+  if(!cfg)return;
+  cfg.topTroop=troop;
+  document.querySelectorAll('#bcwrap-'+bcId+' .bc-troop-btn').forEach(b=>{
+    b.className='bc-troop-btn'+(b.dataset.t===troop?' active':'');
+  });
+}
+
+function addBCSubItem(bcId, type){
+  const cfg=bcList.find(c=>c.id===bcId);
+  if(!cfg)return;
+  siCounter++;
+  cfg.subItems.push({id:'si'+siCounter, type});
+  renderBattleConfigs();
+  // After render, scroll the new item into view
+  setTimeout(()=>{
+    const el=document.getElementById('si-'+'si'+siCounter);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },50);
+}
+
+function removeBCSubItem(bcId, siId){
+  const cfg=bcList.find(c=>c.id===bcId);
+  if(!cfg)return;
+  cfg.subItems=cfg.subItems.filter(s=>s.id!==siId);
+  renderBattleConfigs();
+}
+
+function updateRatioPreview(siId){
+  const i=parseInt((document.getElementById('si-inf-'+siId)||{}).value)||0;
+  const l=parseInt((document.getElementById('si-lan-'+siId)||{}).value)||0;
+  const m=parseInt((document.getElementById('si-mrk-'+siId)||{}).value)||0;
+  const t=i+l+m;
+  const p=document.getElementById('si-rprev-'+siId);
+  if(!p)return;
+  p.textContent=t>0?'Total: '+t+'%'+(t===100?' ✓':' — should be 100%'):'Enter troop percentages';
+  p.style.color=t===100?'var(--actv)':t>0?'var(--casu)':'var(--text3)';
+}
+
+function renderBattleConfigs(){
+  const list=document.getElementById('battle-configs-list');
+  const empty=document.getElementById('bc-empty');
+  if(!list)return;
+  if(!bcList.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+
+  list.innerHTML=bcList.map((cfg,idx)=>{
+    const subItemsHtml=cfg.subItems.map(si=>{
+      if(si.type==='ratio'){
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">&#x1F5E1;&#xFE0F; Troop Ratio</span>'
+          +'<button type="button" class="icon-btn" data-action="bc-rm-sub" data-bcid="'+cfg.id+'" data-siid="'+si.id+'">&#x2715;</button></div>'
+          +'<div class="form-row">'
+            +'<div class="form-group"><label class="form-label">&#x1F5E1;&#xFE0F; Infantry %</label><input class="form-input" id="si-inf-'+si.id+'" type="number" min="0" max="100" placeholder="40" value="'+(si.infantry||'')+'" data-siaction="ratio-preview" data-siid="'+si.id+'"></div>'
+            +'<div class="form-group"><label class="form-label">&#x1F3F9; Lancers %</label><input class="form-input" id="si-lan-'+si.id+'" type="number" min="0" max="100" placeholder="30" value="'+(si.lancers||'')+'" data-siaction="ratio-preview" data-siid="'+si.id+'"></div>'
+            +'<div class="form-group"><label class="form-label">&#x1F3AF; Marksmen %</label><input class="form-input" id="si-mrk-'+si.id+'" type="number" min="0" max="100" placeholder="30" value="'+(si.marksmen||'')+'" data-siaction="ratio-preview" data-siid="'+si.id+'"></div>'
+          +'</div>'
+          +'<div id="si-rprev-'+si.id+'" style="font-size:12px;color:var(--text3);margin-top:-4px"></div>'
+        +'</div>';
+      }
+      if(si.type==='hero'){
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">&#x1F9B8; Hero Setup</span>'
+          +'<button type="button" class="icon-btn" data-action="bc-rm-sub" data-bcid="'+cfg.id+'" data-siid="'+si.id+'">&#x2715;</button></div>'
+          +'<div class="form-row">'
+            +'<div class="form-group"><label class="form-label">Hero Name</label><input class="form-input" id="si-hero-'+si.id+'" placeholder="e.g. Molly, Gina..." value="'+(si.heroName||'')+'"></div>'
+            +'<div class="form-group"><label class="form-label">Position</label>'
+              +'<select class="form-select" id="si-pos-'+si.id+'">'
+                +'<option value="">Any</option>'
+                +'<option value="Left"'+(si.heroPos==='Left'?' selected':'')+'>Left</option>'
+                +'<option value="Middle"'+(si.heroPos==='Middle'?' selected':'')+'>Middle</option>'
+                +'<option value="Right"'+(si.heroPos==='Right'?' selected':'')+'>Right</option>'
+              +'</select>'
+            +'</div>'
+          +'</div>'
+        +'</div>';
+      }
+      if(si.type==='rally'){
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">&#x1F6E1;&#xFE0F; Rally Capacity</span>'
+          +'<button type="button" class="icon-btn" data-action="bc-rm-sub" data-bcid="'+cfg.id+'" data-siid="'+si.id+'">&#x2715;</button></div>'
+          +'<input class="form-input" id="si-rally-'+si.id+'" placeholder="e.g. 500K or 1M" value="'+(si.rallyValue||'')+'">'
+        +'</div>';
+      }
+      if(si.type==='lane'){
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">&#x1F3C1; Lane Choice</span>'
+          +'<button type="button" class="icon-btn" data-action="bc-rm-sub" data-bcid="'+cfg.id+'" data-siid="'+si.id+'">&#x2715;</button></div>'
+          +'<div style="display:flex;gap:8px">'
+            +'<button type="button" class="bc-troop-btn'+(si.lane==='Left'?' active':'')+'" data-action="bc-set-lane" data-siid="'+si.id+'" data-lane="Left">Left</button>'
+            +'<button type="button" class="bc-troop-btn'+(si.lane==='Middle'?' active':'')+'" data-action="bc-set-lane" data-siid="'+si.id+'" data-lane="Middle">Middle</button>'
+            +'<button type="button" class="bc-troop-btn'+(si.lane==='Right'?' active':'')+'" data-action="bc-set-lane" data-siid="'+si.id+'" data-lane="Right">Right</button>'
+          +'</div>'
+        +'</div>';
+      }
+      if(si.type==='buffs'){
+        var BFL=[['lethality','&#x26A1; Troops Lethality'],['attack','&#x2694;&#xFE0F; Troops Attack'],['defense','&#x1F6E1;&#xFE0F; Troops Defense'],['health','&#x2764;&#xFE0F; Troops Health'],['enemy_atk','&#x1F53B; Enemy Attack'],['enemy_def','&#x1F53B; Enemy Defense'],['deploy','&#x1F680; Deployment Capacity']];
+        var sel=si.buffs||[];
+        return '<div class="si-block" id="si-'+si.id+'">'
+          +'<div class="si-header"><span class="si-label">&#x2728; Buff Recommendations</span>'
+          +'<button type="button" class="icon-btn" data-action="bc-rm-sub" data-bcid="'+cfg.id+'" data-siid="'+si.id+'">&#x2715;</button></div>'
+          +'<div style="display:flex;flex-direction:column;gap:8px">'
+          +BFL.map(function(p){var k=p[0],lb=p[1];return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="checkbox"'+(sel.indexOf(k)>=0?' checked':'')+' class="bc-buff-cb" data-siid="'+si.id+'" data-bkey="'+k+'" style="width:15px;height:15px;flex-shrink:0;cursor:pointer">'+lb+'</label>';}).join('')
+          +'</div>'
+        +'</div>';
+      }
+      return '';
+    }).join('');
+
+    return '<div cl"bc-card" id="bcwrap-'+cfg.id+'">'
+      +'<div class="bc-card-header">'
+        +'<span class="bc-card-title">⚔️ Battle Config '+(idx+1)+'</span>'
+        +'<button type="button" class="icon-btn del" onclick="removeBattleConfig(\''+cfg.id+'\')" title="Remove">🗑</button>'
+      +'</div>'
+
+      // Battle Type — FREE TEXT
+      +'<div style="margin-bottom:12px">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Battle Type</div>'
+        +'<input class="form-input" id="bc-type-'+cfg.id+'" placeholder="e.g. Attack, Defense, Formation A…" value="'+((cfg.battleType||'').replace(/"/g,'&quot;'))+'">'
+      +'</div>'
+
+      // Top Troop Type — toggle buttons
+      +'<div style="margin-bottom:12px">'
+        +'<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Top Troop Type</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+          +'<button type="button" class="bc-troop-btn'+(cfg.topTroop==='infantry'?' active':'')+'" data-t="infantry" onclick="setBCTroop(\''+cfg.id+'\',\'infantry\')">🗡️ Infantry</button>'
+          +'<button type="button" class="bc-troop-btn'+(cfg.topTroop==='lancers'?' active':'')+'" data-t="lancers" onclick="setBCTroop(\''+cfg.id+'\',\'lancers\')">🏹 Lancers</button>'
+          +'<button type="button" class="bc-troop-btn'+(cfg.topTroop==='marksmen'?' active':'')+'" data-t="marksmen" onclick="setBCTroop(\''+cfg.id+'\',\'marksmen\')">🎯 Marksmen</button>'
+        +'</div>'
+      +'</div>'
+
+      // Sub-items
+      +subItemsHtml
+
+      // Add more buttons — use data-bcid to avoid escaping issues
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
+        +'<button type="button" class="bc-add-btn" data-action="bc-add-sub" data-bcid="'+cfg.id+'" data-sitype="ratio">+ Troop Ratio</button>'
+        +'<button type="button" class="bc-add-btn" data-action="bc-add-sub" data-bcid="'+cfg.id+'" data-sitype="hero">+ Hero Setup</button>'
+        +'<button type="button" class="bc-add-btn" data-action="bc-add-sub" data-bcid="'+cfg.id+'" data-sitype="rally">+ Rally Capacity</button>'
+        +'<button type="button" class="bc-add-btn" data-action="bc-add-sub" data-bcid="'+cfg.id+'" data-sitype="lane">+ Lane Choice</button>'
+        +'<button type="button" class="bc-add-btn" data-action="bc-add-sub" data-bcid="'+cfg.id+'" data-sitype="buffs">+ Buff Recommendations</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function openEvModal(id){
+  editEvId=id||null; bcList=[]; bcCounter=0; siCounter=0;
+  document.getElementById('ev-modal-title').textContent=id?'Edit Event':'Add Event';
+  ['ev-name','ev-type-text','ev-date','ev-time','ev-desc'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  ['pt-rallylead','pt-online','pt-offline','pt-willpart','pt-wave10','pt-wave20','pt-teams','pt-team1','pt-team2'].forEach(f=>{const el=document.getElementById(f);if(el)el.checked=false;});
+  ['pt-rallylead-sub','pt-online-sub','pt-teams-sub'].forEach(f=>{const el=document.getElementById(f);if(el)el.style.display='none';});
+  const rqEl=document.getElementById('pt-rallylead-qty');if(rqEl)rqEl.value='';
+  renderBattleConfigs();
+
+  if(id){
+    const ev=getEvents().find(x=>x.id===id);
+    if(ev){
+      const set=(elId,val)=>{const el=document.getElementById(elId);if(el)el.value=val||'';};
+      set('ev-name',ev.name);set('ev-type-text',ev.typeText||ev.type||'');
+      set('ev-date',ev.date);set('ev-time',ev.time);set('ev-desc',ev.desc);
+      // Restore battle configs
+      if(ev.battleConfigs&&ev.battleConfigs.length){
+        ev.battleConfigs.forEach(cfg=>{
+          bcCounter++;siCounter++;
+          const newCfg={id:'bc'+bcCounter,battleType:cfg.battleType||'',topTroop:cfg.topTroop||'infantry',subItems:[]};
+          (cfg.subItems||[]).forEach(si=>{
+            siCounter++;
+            newCfg.subItems.push({id:'si'+siCounter,...si});
+          });
+          bcList.push(newCfg);
+        });
+        renderBattleConfigs();
+        // Restore sub-item field values after render
+        setTimeout(()=>{
+          bcList.forEach(cfg=>{
+            cfg.subItems.forEach(si=>{
+              if(si.type==='ratio'){
+                const ie=document.getElementById('si-inf-'+si.id);if(ie)ie.value=si.infantry||'';
+                const le=document.getElementById('si-lan-'+si.id);if(le)le.value=si.lancers||'';
+                const me=document.getElementById('si-mrk-'+si.id);if(me)me.value=si.marksmen||'';
+                updateRatioPreview(si.id);
+              }
+              if(si.type==='hero'){
+                const he=document.getElementById('si-hero-'+si.id);if(he)he.value=si.heroName||'';
+                const pe=document.getElementById('si-pos-'+si.id);if(pe)pe.value=si.heroPos||'';
+              }
+              if(si.type==='rally'){
+                const re=document.getElementById('si-rally-'+si.id);if(re)re.value=si.rallyValue||'';
+              }
+            });
+          });
+        },50);
+      }
+      // Restore participation
+      const pt=ev.pt||{};
+      if(pt.rallyLeads){document.getElementById('pt-rallylead').checked=true;document.getElementById('pt-rallylead-sub').style.display='block';const rq=document.getElementById('pt-rallylead-qty');if(rq)rq.value=pt.rallyLeads;}
+      if(pt.online){document.getElementById('pt-online').checked=true;document.getElementById('pt-online-sub').style.display='block';if(pt.wave10){const e=document.getElementById('pt-wave10');if(e)e.checked=true;}if(pt.wave20){const e=document.getElementById('pt-wave20');if(e)e.checked=true;}}
+      if(pt.offline){const e=document.getElementById('pt-offline');if(e)e.checked=true;}
+      if(pt.willPart){const e=document.getElementById('pt-willpart');if(e)e.checked=true;}
+      if(pt.teams){
+        const te=document.getElementById('pt-teams');if(te)te.checked=true;
+        const ts=document.getElementById('pt-teams-sub');if(ts)ts.style.display='block';
+        if(pt.team1){const e=document.getElementById('pt-team1');if(e)e.checked=true;}
+        if(pt.team2){const e=document.getElementById('pt-team2');if(e)e.checked=true;}
+      }
+    }
+  }
+  openModal('modal-ev');
+}
+
+function saveEvent(){
+  const nameEl=document.getElementById('ev-name');
+  const name=nameEl?nameEl.value.trim():'';
+  if(!name){showToast('Event title required.','error');return;}
+
+  // Collect battle configs — read field values at save time
+  const savedConfigs=bcList.map(cfg=>{
+    const btEl=document.getElementById('bc-type-'+cfg.id);
+    const subItems=cfg.subItems.map(si=>{
+      if(si.type==='ratio'){
+        const infantry=(document.getElementById('si-inf-'+si.id)||{}).value||'';
+        const lancers=(document.getElementById('si-lan-'+si.id)||{}).value||'';
+        const marksmen=(document.getElementById('si-mrk-'+si.id)||{}).value||'';
+        return{type:'ratio',infantry,lancers,marksmen};
+      }
+      if(si.type==='hero'){
+        const heroName=((document.getElementById('si-hero-'+si.id)||{}).value||'').trim();
+        const heroPos=(document.getElementById('si-pos-'+si.id)||{}).value||'';
+        return{type:'hero',heroName,heroPos};
+      }
+      if(si.type==='rally'){
+        const rallyValue=((document.getElementById('si-rally-'+si.id)||{}).value||'').trim();
+        return{type:'rally',rallyValue};
+      }
+      return si;
+    }).filter(si=>si);
+    return{battleType:btEl?btEl.value.trim():'',topTroop:cfg.topTroop,subItems};
+  });
+
+  // Collect participation
+  const cb=id=>{ const el=document.getElementById(id); return el&&el.checked; };
+  const val=id=>{ const el=document.getElementById(id); return el?el.value:''; };
+  const pt={
+    rallyLeads:cb('pt-rallylead')?val('pt-rallylead-qty'):'',
+    online:cb('pt-online'), wave10:cb('pt-wave10'), wave20:cb('pt-wave20'),
+    offline:cb('pt-offline'), willPart:cb('pt-willpart'),
+    teams:cb('pt-teams'), team1:cb('pt-team1'), team2:cb('pt-team2')
+  };
+
+  // Build slots
+  const existingEv=editEvId?getEvents().find(e=>e.id===editEvId):null;
+  const getEx=n=>(existingEv&&existingEv.slots||[]).find(s=>s.name===n);
+  const slots=[];
+  if(pt.rallyLeads){const ex=getEx('Rally Lead');slots.push({name:'Rally Lead',max:parseInt(pt.rallyLeads)||5,members:ex?ex.members:[]});}
+  if(pt.online&&pt.wave10){const ex=getEx('HQ Wave 10');slots.push({name:'HQ Wave 10',max:15,members:ex?ex.members:[]});}
+  if(pt.online&&pt.wave20){const ex=getEx('HQ Wave 20');slots.push({name:'HQ Wave 20',max:15,members:ex?ex.members:[]});}
+  if(pt.offline){const ex=getEx('Offline');slots.push({name:'Offline',max:999,members:ex?ex.members:[]});}
+  if(pt.willPart){
+    const ex1=getEx('Will Participate');slots.push({name:'Will Participate',max:999,members:ex1?ex1.members:[]});
+    const ex2=getEx('Will Not Participate');slots.push({name:'Will Not Participate',max:999,members:ex2?ex2.members:[]});
+  }
+  if(pt.teams){
+    if(pt.team1){const ex=getEx('Team 1');slots.push({name:'Team 1',max:999,members:ex?ex.members:[]});}
+    if(pt.team2){const ex=getEx('Team 2');slots.push({name:'Team 2',max:999,members:ex?ex.members:[]});}
+  }
+
+  const entry={
+    id:editEvId||uid(), name,
+    type:'custom', typeText:val('ev-type-text'),
+    date:val('ev-date'), time:val('ev-time'), desc:val('ev-desc').trim(),
+    battleConfigs:savedConfigs, pt,
+    participation:slots.length>0, slots
+  };
+
+  const events=getEvents();
+  if(editEvId){const i=events.findIndex(e=>e.id===editEvId);if(i>-1)events[i]=entry;}
+  else events.push(entry);
+  saveEvents(events);
+  closeModal('modal-ev');renderEvents();renderHome();
+  showToast('Event saved.','success');
+}
+
+function deleteEvent(id){confirm2('Delete this event?',()=>{saveEvents(getEvents().filter(e=>e.id!==id));renderEvents();renderHome();showToast('Deleted.','success');});}
+
+function toggleSignup(evId,slotName,playerName,join){
+  const events=getEvents();
+  const ev=events.find(e=>e.id===evId);if(!ev)return;
+  const sl=ev.slots.find(s=>s.name===slotName);if(!sl)return;
+  if(!sl.members)sl.members=[];
+  if(join&&!sl.members.includes(playerName)&&sl.members.length<sl.max)sl.members.push(playerName);
+  else if(!join)sl.members=sl.members.filter(n=>n!==playerName);
+  saveEvents(events);renderEvents();
+  showToast(join?'Signed up for '+slotName:'Removed from '+slotName,'success');
+}
+
+// ══════════════════════════════════════════
+// RESOURCES
+// ══════════════════════════════════════════
+const resIconMap={pdf:'📄',image:'🖼️',link:'🔗',guide:'📖',video:'▶️'};
+
+function renderResources(filter){
+  if(filter!==undefined)resFilter=filter;
+  let res=getResources();
+  if(resFilter)res=res.filter(r=>r.type===resFilter);
+  document.querySelectorAll('[data-resfilter]').forEach(b=>b.classList.toggle('active',b.dataset.resfilter===resFilter));
+  const isAdm=currentRole==='admin'||currentRole==='owner';
+  const list=document.getElementById('res-list');
+  if(!res.length){
+    list.innerHTML='<div class="empty-msg"><div class="emoji">📚</div><p>No new resources</p></div>';
+    return;
+  }
+  list.innerHTML=res.map(r=>`
+    <div class="res-card">
+      <div class="res-icon ri-${r.type}">${resIconMap[r.type]||'📁'}</div>
+      <div class="res-info">
+        <div class="res-name">${esc(r.title)}</div>
+        ${r.desc?`<div class="res-desc">${esc(r.desc)}</div>`:''}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">
+          ${r.tag?`<span class="res-tag">${esc(r.tag)}</span>`:''}
+          ${r.url?`<a href="${esc(r.url)}" target="_blank" class="btn btn-sm">🔗 Open</a>`:''}
+          <span style="font-size:11px;color:var(--text3)">${r.date}</span>
+        </div>
+      </div>
+      ${isAdm?`<button class="icon-btn del" data-action="del-res" data-id="${r.id}" title="Delete">🗑</button>`:''}
+    </div>`).join('');
+}
+
+function saveResource(){
+  const title=document.getElementById('res-title').value.trim();
+  if(!title){showToast('Title required.','error');return;}
+  const res=getResources();
+  res.unshift({id:uid(),type:document.getElementById('res-type').value,title,desc:document.getElementById('res-desc').value.trim(),url:document.getElementById('res-url').value.trim(),tag:document.getElementById('res-tag').value.trim(),date:today()});
+  saveResources(res);closeModal('modal-res');renderResources();renderHome();
+  showToast('Resource added.','success');
+  ['res-title','res-desc','res-url','res-tag'].forEach(i=>document.getElementById(i).value='');
+}
+
+function deleteResource(id){confirm2('Delete this resource?',()=>{saveResources(getResources().filter(r=>r.id!==id));renderResources();renderHome();showToast('Deleted.','success');});}
+
+// ══════════════════════════════════════════
+// RANKINGS
+// ══════════════════════════════════════════
+function renderRankings(){
+  const isAdm=currentRole==='admin'||currentRole==='owner';
+  let all=getMembers().map(m=>({...m,...calcScore(m),tier:getTier(calcScore(m).pct)}));
+  // Sort by score to get true rank positions before filtering
+  all.sort((a,b)=>b.final-a.final);
+
+  // Player rank banner
+  const banner=document.getElementById('my-rank-banner');
+  if(banner){
+    if(currentRole==='player'&&currentMemberId){
+      const me=all.find(m=>m.id===currentMemberId);
+      const myRank=all.findIndex(m=>m.id===currentMemberId)+1;
+      if(me){
+        const bc=tierColor(me.tier);
+        banner.style.display='block';
+        banner.innerHTML=`<div style="background:${bc}15;border:1px solid ${bc}40;border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="font-size:28px;font-weight:800;color:${bc}">#${myRank}</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700">${esc(me.name)}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+              <span class="tier-pill ${tierClass(me.tier)}">${me.tier}</span>
+              <span style="font-size:12px;color:var(--text2)">Score: <strong style="color:${bc}">${me.final}</strong> (${me.pct.toFixed(1)}%)</span>
+              <span style="font-size:12px;color:var(--text2)">${myRank} of ${all.length} members</span>
+            </div>
+          </div>
+          <button class="btn btn-sm" data-page="mystats" onclick="gotoPage('mystats')">📊 Full Stats</button>
+        </div>`;
+      }
+    } else {
+      banner.style.display='none';
+    }
+  }
+
+  let members=[...all];
+  const q=(document.getElementById('rank-search').value||'').toLowerCase();
+  const tf=document.getElementById('rank-tier').value;
+  const sf=document.getElementById('rank-sort').value;
+  if(sf==='name')members.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sf==='power')members.sort((a,b)=>parseFloat(b.power)-parseFloat(a.power));
+  else if(sf==='part')members.sort((a,b)=>b.part-a.part);
+  if(q)members=members.filter(m=>m.name.toLowerCase().includes(q));
+  if(tf)members=members.filter(m=>m.tier===tf);
+
+  const tbody=document.getElementById('rank-tbody');
+  const empty=document.getElementById('rank-empty');
+  if(!members.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const pins=getPINs();
+  // For rank number, use position in the full sorted list
+  tbody.innerHTML=members.map(m=>{
+    const trueRank=all.findIndex(x=>x.id===m.id)+1;
+    const fd=getFurnaceDisplay(m.furnace);
+    const bc=tierColor(m.tier);
+    const bar=Math.max(0,Math.min(100,(m.final/MAX_TOTAL)*100));
+    const isMe=currentRole==='player'&&m.id===currentMemberId;
+    return`<tr style="${isMe?'background:rgba(58,123,213,0.08);':''}">
+      <td><span class="rank-num ${trueRank<=3?'r'+trueRank:''}">${trueRank}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-weight:700;color:${isMe?'var(--ice)':'var(--text)'}">${esc(m.name)}</span>
+          ${isMe?'<span style="font-size:10px;color:var(--ice);font-weight:700;background:rgba(58,123,213,0.2);padding:1px 5px;border-radius:4px">YOU</span>':''}
+          ${m.arank?`<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(240,160,48,0.15);color:var(--gold);border:1px solid rgba(240,160,48,0.3)">${esc(m.arank)}</span>`:''}
+        </div>
+        ${m.gamerid?`<div style="font-size:11px;color:var(--text3);margin-top:2px">ID: ${esc(m.gamerid)}</div>`:''}
+        ${isAdm?`<span style="font-size:11px;color:${pins[m.id]?'var(--actv)':'var(--text3)'}" title="${pins[m.id]?'PIN set':'No PIN'}">${pins[m.id]?'🔒':'🔓'}</span>`:''}
+      </td>
+      <td>${fd?`<span class="furnace-badge">🔥${fd}</span>`:'—'}</td>
+      <td style="color:var(--text2)">${m.power?parseFloat(m.power).toLocaleString()+'M':'—'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bar-track" style="flex:1;min-width:50px"><div class="bar-fill" style="width:${bar}%;background:${bc}"></div></div>
+          <span style="font-weight:800;color:${bc};font-size:14px">${m.final}</span>
+        </div>
+      </td>
+      <td><span class="tier-pill ${tierClass(m.tier)}" style="${m.tier==='Needs Improvement'?'font-size:9px':''}">${m.tier}</span></td>
+      ${isAdm?`<td><div style="display:flex;gap:4px">
+        <button class="icon-btn" data-action="view-member" data-id="${m.id}" title="View">👁</button>
+        <button class="icon-btn" data-action="edit-member" data-id="${m.id}" title="Edit">✏️</button>
+        ${pins[m.id]?`<button class="icon-btn" data-action="reset-pin" data-id="${m.id}" data-name="${esc(m.name)}" title="Reset PIN">🔓</button>`:''}
+        <button class="icon-btn del" data-action="del-member" data-id="${m.id}" data-name="${esc(m.name)}" title="Delete">🗑</button>
+      </div></td>`:'<td></td>'}
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// MEMBERS GRID
+// ══════════════════════════════════════════
+function renderMembers(){
+  const members=getMembers().map(m=>({...m,...calcScore(m)})).map(m=>({...m,tier:getTier(m.pct)})).sort((a,b)=>b.final-a.final);
+  const grid=document.getElementById('member-grid');
+  const empty=document.getElementById('members-empty');
+  if(!members.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=members.map(m=>{
+    const fd=getFurnaceDisplay(m.furnace);
+    const bc=tierColor(m.tier);
+    const ini=(m.name.split(' ').map(w=>w[0]||'').join('').toUpperCase()||m.name[0].toUpperCase()).slice(0,2);
+    const bar=Math.max(0,Math.min(100,(m.final/MAX_TOTAL)*100));
+    return`<div class="member-card" data-action="view-member" data-id="${m.id}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:44px;height:44px;border-radius:50%;background:${bc}22;border:2px solid ${bc}44;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:${bc};flex-shrink:0">${ini}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name)}</div>
+          <span class="tier-pill ${tierClass(m.tier)}">${m.tier}</span>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:${bc}">${m.final}</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        ${fd?`<span class="furnace-badge">🔥${fd}</span>`:''}
+        ${m.power?`<span style="font-size:11px;color:var(--text2);padding:2px 7px;background:var(--bg3);border-radius:4px;border:1px solid var(--border)">${parseFloat(m.power).toLocaleString()}M</span>`:''}
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${bar}%;background:${bc}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// MEMBER MODAL
+// ══════════════════════════════════════════
+function openMemberModal(id){
+  editMemberId=id||null;
+  document.getElementById('member-modal-title').textContent=id?'Edit Member':'Add Member';
+  CATS.forEach(c=>mRatings[c.id]=0);
+  ['m-name','m-gamerid','m-furnace','m-power','m-notes'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  const arEl=document.getElementById('m-arank');if(arEl)arEl.value='';
+  if(id){
+    const m=getMembers().find(x=>x.id===id);
+    if(m){
+      document.getElementById('m-name').value=m.name;
+      const gid=document.getElementById('m-gamerid');if(gid)gid.value=m.gamerid||'';
+      const ar=document.getElementById('m-arank');if(ar)ar.value=m.arank||'';
+      document.getElementById('m-furnace').value=m.furnace||'';
+      document.getElementById('m-power').value=m.power||'';
+      document.getElementById('m-notes').value=m.notes||'';
+      CATS.forEach(c=>mRatings[c.id]=m.ratings[c.id]||0);
+    }
+  }
+  buildStars();updateScorePreview();
+  openModal('modal-member');
+}
+
+function buildStars(){
+  // Now uses static <select> elements — just set the value
+  CATS.forEach(c=>{
+    const el=document.getElementById('ms-'+c.id);
+    if(el) el.value=mRatings[c.id]||0;
+  });
+}
+
+function onRatingChange(catId, val){
+  mRatings[catId]=parseInt(val)||0;
+}
+
+function updateScorePreview(){
+  // Read directly from select elements for reliability
+  let part=0;
+  CATS.forEach(c=>{
+    const el=document.getElementById('ms-'+c.id);
+    const v=el?parseInt(el.value)||0:(mRatings[c.id]||0);
+    mRatings[c.id]=v;
+    part+=v*c.weight;
+  });
+  const fv=document.getElementById('m-furnace').value;
+  const pv=document.getElementById('m-power').value;
+  const fA=fv?getFurnaceAdj(fv):null;
+  const pA=pv?getPowerAdj(pv):null;
+  document.getElementById('prev-part').textContent=part;
+  document.getElementById('prev-furn').textContent=fA!==null?(fA>=0?'+'+fA:fA):'—';
+  document.getElementById('prev-pow').textContent=pA!==null?(pA>=0?'+'+pA:pA):'—';
+  document.getElementById('prev-final').textContent=part+(fA||0)+(pA||0);
+}
+
+function saveMember(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){showToast('Name required.','error');return;}
+  // Read ratings from select elements
+  const ratings={};
+  CATS.forEach(c=>{
+    const el=document.getElementById('ms-'+c.id);
+    ratings[c.id]=el?parseInt(el.value)||0:mRatings[c.id]||0;
+  });
+  const members=getMembers();
+  const gamerIdEl=document.getElementById('m-gamerid');
+  const arankEl=document.getElementById('m-arank');
+  const entry={id:editMemberId||uid(),name,gamerid:gamerIdEl?gamerIdEl.value.trim():'',arank:arankEl?arankEl.value:'',furnace:document.getElementById('m-furnace').value,power:document.getElementById('m-power').value,notes:document.getElementById('m-notes').value.trim(),ratings};
+  if(editMemberId){const i=members.findIndex(m=>m.id===editMemberId);if(i>-1)members[i]={...members[i],...entry};}
+  else members.push(entry);
+  saveMembers(members);closeModal('modal-member');
+  renderRankings();renderMembers();
+  showToast(name+(editMemberId?' updated.':" added."),'success');
+}
+
+function deleteMember(id,name){
+  confirm2('Remove '+name+' from the alliance?',()=>{
+    saveMembers(getMembers().filter(m=>m.id!==id));
+    const pins=getPINs();delete pins[id];savePINs(pins);
+    renderRankings();renderMembers();showToast('Member removed.','success');
+  });
+}
+
+function resetPIN(id,name){
+  const pins=getPINs();delete pins[id];savePINs(pins);
+  renderRankings();showToast('PIN reset for '+name,'success');
+}
+
+// ══════════════════════════════════════════
+// PROFILE MODAL
+// ══════════════════════════════════════════
+function openProfileModal(id){
+  const member=getMembers().find(m=>m.id===id);if(!member)return;
+  const sc=calcScore(member);
+  const tier=getTier(sc.pct);
+  const bc=tierColor(tier);
+  const fd=getFurnaceDisplay(member.furnace);
+  const sorted=getMembers().map(m=>({...m,...calcScore(m)})).sort((a,b)=>b.final-a.final);
+  const rank=sorted.findIndex(m=>m.id===id)+1;
+  const ini=(member.name.split(' ').map(w=>w[0]||'').join('').toUpperCase()||member.name[0].toUpperCase()).slice(0,2);
+  document.getElementById('profile-modal-title').textContent=member.name;
+  document.getElementById('profile-modal-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="width:54px;height:54px;border-radius:50%;background:${bc}22;border:2px solid ${bc}55;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${bc};flex-shrink:0">${ini}</div>
+      <div>
+        <div style="font-size:18px;font-weight:800">${esc(member.name)}</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="tier-pill ${tierClass(tier)}">${tier}</span>
+          ${fd?`<span class="furnace-badge">🔥${fd}</span>`:''}
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+        <div class="p-stat"><div class="p-stat-label">Rank</div><div class="p-stat-val" style="color:var(--gold)">#${rank}</div></div>
+        <div class="p-stat"><div class="p-stat-label">Score</div><div class="p-stat-val" style="color:${bc}">${sc.final}</div></div>
+        <div class="p-stat"><div class="p-stat-label">%</div><div class="p-stat-val" style="color:${bc}">${sc.pct.toFixed(1)}%</div></div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div>
+        <div class="section-label">Category Scores</div>
+        ${CATS.map(c=>{const val=member.ratings[c.id]||0;const pct=val/5*100;const cc=val<=1?'var(--need)':val<=2?'var(--casu)':val<=3?'var(--core)':val<=4?'var(--actv)':'var(--elite)';
+        return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="flex:1;min-width:0;font-size:12px;color:var(--text2)">${c.label}</div>
+          <div class="bar-track" style="width:60px"><div class="bar-fill" style="width:${pct}%;background:${cc}"></div></div>
+          <div style="font-size:12px;font-weight:700;color:${cc};min-width:22px;text-align:right">${val}/5</div>
+        </div>`;}).join('')}
+      </div>
+      <div>
+        <div class="section-label">Score Breakdown</div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Participation</span><span style="font-weight:700">${sc.part}/${MAX_PART}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Furnace</span><span style="font-weight:700;color:${sc.fA>=0?'var(--actv)':'var(--need)'}">${sc.fA>=0?'+':''}${sc.fA}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Power</span><span style="font-weight:700;color:${sc.pA>=0?'var(--actv)':'var(--need)'}">${sc.pA>=0?'+':''}${sc.pA}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:9px 0"><span style="font-weight:700">Final</span><span style="font-weight:800;font-size:18px;color:${bc}">${sc.final}</span></div>
+      </div>
+    </div>
+    ${member.notes?`<div class="section-label">Leadership Notes</div><div style="background:var(--bg3);border-radius:var(--r);padding:12px;font-size:13px;color:var(--text2);line-height:1.65;border-left:3px solid var(--accent);margin-bottom:14px">${esc(member.notes)}</div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" data-action="edit-member-from-profile" data-id="${id}">✏️ Edit</button>
+      <button class="btn btn-danger" data-action="del-member-from-profile" data-id="${id}" data-name="${esc(member.name)}">🗑 Remove</button>
+    </div>`;
+  openModal('modal-profile');
+}
+
+// ══════════════════════════════════════════
+// FEEDBACK (admin)
+// ══════════════════════════════════════════
+function updateFbBadge(){
+  const unread=getFeedback().filter(f=>f.status==='pending').length;
+  const badge=document.getElementById('fb-badge');
+  if(badge){badge.textContent=unread;badge.style.display=unread?'':'none';}
+}
+
+function renderFeedbackAdmin(){
+  const fb=getFeedback().sort((a,b)=>b.ts-a.ts);
+  const list=document.getElementById('fb-admin-list');
+  const empty=document.getElementById('fb-admin-empty');
+  updateFbBadge();
+  if(!fb.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=fb.map(f=>`
+    <div class="fb-card">
+      <div class="fb-head">
+        <div>
+          <div class="fb-subject">${esc(f.subject)}</div>
+          <div class="fb-from">from ${esc(f.player)} · ${new Date(f.ts).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="fb-status fs-${f.status}">${f.status}</span>
+          <button class="btn btn-sm" data-action="reply-fb" data-id="${f.id}">↩ Reply</button>
+          <button class="icon-btn del" data-action="del-fb" data-id="${f.id}" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="fb-body" style="margin-top:6px">${esc(f.body)}</div>
+      ${f.reply?`<div class="fb-reply"><span style="font-size:10px;font-weight:700;color:var(--ice);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px">Leadership Reply</span>${esc(f.reply)}</div>`:''}
+    </div>`).join('');
+  const all=getFeedback();all.forEach(f=>{if(f.status==='pending')f.status='read';});saveFeedback(all);
+  updateFbBadge();
+}
+
+function openReplyModal(id){
+  replyFbId=id;
+  const f=getFeedback().find(x=>x.id===id);if(!f)return;
+  document.getElementById('reply-preview').innerHTML=`<strong>${esc(f.subject)}</strong><br><em style="color:var(--text3);font-size:11px">${esc(f.player)}</em><br><br>${esc(f.body)}`;
+  document.getElementById('reply-text').value=f.reply||'';
+  openModal('modal-reply');
+}
+
+function sendReply(){
+  const text=document.getElementById('reply-text').value.trim();
+  if(!text){showToast('Write a reply first.','error');return;}
+  const fb=getFeedback();
+  const f=fb.find(x=>x.id===replyFbId);
+  if(f){f.reply=text;f.status='replied';}
+  saveFeedback(fb);closeModal('modal-reply');renderFeedbackAdmin();showToast('Reply sent.','success');
+}
+
+function deleteFeedbackItem(id){confirm2('Delete this feedback?',()=>{saveFeedback(getFeedback().filter(f=>f.id!==id));renderFeedbackAdmin();showToast('Deleted.','success');});}
+
+// ══════════════════════════════════════════
+// PLAYER — MY STATS
+// ══════════════════════════════════════════
+function renderMyStats(){
+  const member=getMembers().find(m=>m.id===currentMemberId);
+  if(!member){document.getElementById('p-hero').innerHTML='<p style="color:var(--text3)">Profile not found. Contact your admin.</p>';return;}
+  const sc=calcScore(member);
+  const tier=getTier(sc.pct);
+  const bc=tierColor(tier);
+  const fd=getFurnaceDisplay(member.furnace);
+  const ini=(member.name.split(' ').map(w=>w[0]||'').join('').toUpperCase()||member.name[0].toUpperCase()).slice(0,2);
+  const sorted=getMembers().map(m=>({...m,...calcScore(m)})).sort((a,b)=>b.final-a.final);
+  const rank=sorted.findIndex(m=>m.id===currentMemberId)+1;
+
+  document.getElementById('p-hero').innerHTML=`
+    <div class="player-hero">
+      <div class="p-avatar" style="background:${bc}22;border:2px solid ${bc}55;color:${bc}">${ini}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:18px;font-weight:800;margin-bottom:5px">${esc(member.name)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="tier-pill ${tierClass(tier)}">${tier}</span>
+          ${fd?`<span class="furnace-badge">🔥${fd}</span>`:''}
+          ${member.power?`<span style="font-size:12px;color:var(--text2);padding:2px 8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border)">${parseFloat(member.power).toLocaleString()}M Power</span>`:''}
+        </div>
+      </div>
+      <div class="p-stats">
+        <div class="p-stat"><div class="p-stat-label">Rank</div><div class="p-stat-val" style="color:var(--gold)">#${rank}</div></div>
+        <div class="p-stat"><div class="p-stat-label">Score</div><div class="p-stat-val" style="color:${bc}">${sc.final}</div></div>
+        <div class="p-stat"><div class="p-stat-label">%</div><div class="p-stat-val" style="color:${bc}">${sc.pct.toFixed(1)}%</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('p-cats').innerHTML=CATS.map(c=>{
+    const val=member.ratings[c.id]||0;const pct=val/5*100;
+    const cc=val<=1?'var(--need)':val<=2?'var(--casu)':val<=3?'var(--core)':val<=4?'var(--actv)':'var(--elite)';
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+      <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--text2)">${c.label}</div><div style="font-size:10px;color:var(--text3)">×${c.weight}</div></div>
+      <div class="bar-track" style="width:70px"><div class="bar-fill" style="width:${pct}%;background:${cc}"></div></div>
+      <div style="font-size:12px;font-weight:700;color:${cc};min-width:24px;text-align:right">${val}/5</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('p-breakdown').innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Participation</span><span style="font-weight:700">${sc.part}/${MAX_PART}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Furnace (${fd||'—'})</span><span style="font-weight:700;color:${sc.fA>=0?'var(--actv)':'var(--need)'}">${sc.fA>=0?'+':''}${sc.fA}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-size:13px">Power</span><span style="font-weight:700;color:${sc.pA>=0?'var(--actv)':'var(--need)'}">${sc.pA>=0?'+':''}${sc.pA}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0"><span style="font-weight:700">Final Score</span><span style="font-weight:800;font-size:18px;color:${bc}">${sc.final}</span></div>`;
+
+  const tierTip=TIER_TIPS[tier];
+  let tHTML=`<div class="tip-item good" style="border-left-color:${bc}"><div class="tip-title" style="color:${bc}">${tier} Tier</div><div class="tip-body">${tierTip.body}</div></div>`;
+  CATS.filter(c=>(member.ratings[c.id]||0)<=2).sort((a,b)=>b.weight-a.weight).slice(0,3).forEach(c=>{
+    const tip=CAT_TIPS[c.id];const val=member.ratings[c.id]||0;
+    tHTML+=`<div class="tip-item"><div class="tip-title">${tip.title} <span style="color:var(--text3);font-weight:400;font-size:11px">(${val}/5)</span></div><div class="tip-body">${tip.body}</div><a href="${tip.url}" target="_blank" class="tip-link">▶ Watch guide on YouTube</a></div>`;
+  });
+  CATS.filter(c=>(member.ratings[c.id]||0)===3).sort((a,b)=>b.weight-a.weight).slice(0,2).forEach(c=>{
+    const tip=CAT_TIPS[c.id];
+    tHTML+=`<div class="tip-item mid"><div class="tip-title">${tip.title} <span style="color:var(--text3);font-weight:400;font-size:11px">(3/5)</span></div><div class="tip-body">${tip.body}</div><a href="${tip.url}" target="_blank" class="tip-link">▶ Watch guide on YouTube</a></div>`;
+  });
+  document.getElementById('p-tips').innerHTML=tHTML;
+
+  const nc=document.getElementById('p-notes-card');
+  if(member.notes){nc.style.display='block';document.getElementById('p-notes').innerHTML=`<p style="font-size:13px;color:var(--text2);line-height:1.7">${esc(member.notes)}</p>`;}
+  else nc.style.display='none';
+}
+
+// ══════════════════════════════════════════
+// PLAYER — MY FEEDBACK
+// ══════════════════════════════════════════
+function renderMyFeedback(){
+  const fb=getFeedback().filter(f=>f.player===currentUser).sort((a,b)=>b.ts-a.ts);
+  const list=document.getElementById('p-fb-list');
+  const empty=document.getElementById('p-fb-empty');
+  if(!fb.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=fb.map(f=>`
+    <div class="fb-card">
+      <div class="fb-head">
+        <div>
+          <div class="fb-subject">${esc(f.subject)}</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+            <span class="fb-status fs-${f.status}">${f.status}</span>
+            <span style="font-size:11px;color:var(--text3)">${new Date(f.ts).toLocaleDateString()}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          ${f.status!=='replied'?`<button class="icon-btn" data-action="edit-my-fb" data-id="${f.id}" title="Edit">✏️</button>`:''}
+          <button class="icon-btn del" data-action="del-my-fb" data-id="${f.id}" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="fb-body" style="margin-top:8px">${esc(f.body)}</div>
+      ${f.reply?`<div class="fb-reply"><span style="font-size:10px;font-weight:700;color:var(--ice);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px">💬 Leadership Reply</span>${esc(f.reply)}</div>`:''}
+    </div>`).join('');
+}
+
+let editFbId=null;
+
+function openEditFeedback(id){
+  const f=getFeedback().find(x=>x.id===id);
+  if(!f)return;
+  editFbId=id;
+  document.getElementById('edit-fb-subject').value=f.subject;
+  document.getElementById('edit-fb-body').value=f.body;
+  document.getElementById('edit-fb-err').style.display='none';
+  openModal('modal-edit-fb');
+}
+
+function saveEditFeedback(){
+  const subject=document.getElementById('edit-fb-subject').value.trim();
+  const body=document.getElementById('edit-fb-body').value.trim();
+  const err=document.getElementById('edit-fb-err');
+  if(!subject||!body){err.textContent='Both fields are required.';err.style.display='block';return;}
+  const fb=getFeedback();
+  const f=fb.find(x=>x.id===editFbId);
+  if(!f)return;
+  f.subject=subject;
+  f.body=body;
+  f.status='pending'; // reset so admin sees it as updated
+  f.ts=Date.now();    // bump to top
+  saveFeedback(fb);
+  closeModal('modal-edit-fb');
+  renderMyFeedback();
+  showToast('Feedback updated.','success');
+}
+
+function deleteMyFeedback(id){
+  confirm2('Delete this feedback? This cannot be undone.',()=>{
+    saveFeedback(getFeedback().filter(f=>f.id!==id));
+    renderMyFeedback();
+    showToast('Feedback deleted.','success');
+  });
+}
+
+function submitFeedback(){
+  const subject=document.getElementById('fb-subject').value.trim();
+  const body=document.getElementById('fb-body').value.trim();
+  if(!subject||!body){showToast('Fill in both fields.','error');return;}
+  const fb=getFeedback();
+  fb.push({id:uid(),player:currentUser,subject,body,status:'pending',reply:'',ts:Date.now()});
+  saveFeedback(fb);
+  document.getElementById('fb-subject').value='';document.getElementById('fb-body').value='';
+  showToast('Feedback sent to leadership.','success');
+  renderMyFeedback();
+}
+
+// ══════════════════════════════════════════
+// OWNER PANEL
+// ══════════════════════════════════════════
+function renderOwnerPanel(){
+  setTimeout(checkSupabaseStatus, 200);
+  const admins=getAdmins();
+  const o=getOwner();
+  document.getElementById('oc-user').value=o.username;
+  document.getElementById('oc-pass').value='';document.getElementById('oc-pass2').value='';
+  document.getElementById('oc-err').style.display='none';
+  document.getElementById('oa-user').value='';document.getElementById('oa-pass').value='';
+  document.getElementById('oa-err').style.display='none';
+  document.getElementById('admin-list').innerHTML=admins.map((a,i)=>`
+    <div class="admin-row">
+      <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gold)">🛡️</span><span style="font-size:13px;font-weight:600">${esc(a.username)}</span>${i===0?'<span style="font-size:10px;color:var(--text3);padding:1px 6px;background:var(--bg4);border-radius:4px">primary</span>':''}</div>
+      ${admins.length>1?`<button class="icon-btn del" data-action="del-admin" data-idx="${i}" title="Remove">🗑</button>`:''}
+    </div>`).join('');
+}
+
+function addAdmin(){
+  const u=document.getElementById('oa-user').value.trim();
+  const p=document.getElementById('oa-pass').value;
+  const err=document.getElementById('oa-err');
+  if(!u||!p){err.textContent='Both fields required.';err.style.display='block';return;}
+  const admins=getAdmins();
+  if(admins.find(a=>a.username.toLowerCase()===u.toLowerCase())){err.textContent='Username already exists.';err.style.display='block';return;}
+  admins.push({username:u,password:p});saveAdmins(admins);
+  err.style.display='none';renderOwnerPanel();showToast('Admin added: '+u,'success');
+}
+
+function removeAdmin(idx){
+  const admins=getAdmins();if(admins.length<=1){showToast('Cannot remove the only admin.','error');return;}
+  if(!confirm('Remove admin "'+admins[idx].username+'"?'))return;
+  admins.splice(idx,1);saveAdmins(admins);renderOwnerPanel();showToast('Admin removed.','success');
+}
+
+function saveOwnerCreds(){
+  const u=document.getElementById('oc-user').value.trim();
+  const p=document.getElementById('oc-pass').value;
+  const p2=document.getElementById('oc-pass2').value;
+  const err=document.getElementById('oc-err');
+  if(!u){err.textContent='Username required.';err.style.display='block';return;}
+  if(p&&p!==p2){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  const o=getOwner();saveOwner({username:u,password:p||o.password});
+  err.style.display='none';showToast('Owner credentials updated.','success');
+}
+
+async function checkSupabaseStatus(){
+  const el = document.getElementById('supabase-status');
+  if(!el) return;
+  if(SUPABASE_URL === 'YOUR_SUPABASE_URL'){
+    el.innerHTML = '❌ <strong>Not configured</strong> — Supabase URL and key are still placeholders.';
+    el.style.borderColor = 'rgba(239,68,68,0.4)';
+    return;
+  }
+  el.textContent = 'Testing connection…';
+  try {
+    const { data, error } = await sb.from('alliance_kv').select('key').limit(1);
+    if(error) throw error;
+    SUPABASE_CONNECTED = true;
+    el.innerHTML = '✅ <strong>Connected</strong> — Supabase is working. ' + (data && data.length ? data.length + ' key(s) in cloud.' : 'Cloud is empty — click Push to sync your data.');
+    el.style.borderColor = 'rgba(34,197,94,0.4)';
+  } catch(err){
+    SUPABASE_CONNECTED = false;
+    el.innerHTML = '❌ <strong>Connection failed</strong> — ' + (err.message || 'Check your Supabase URL, anon key, and that the alliance_kv table exists.');
+    el.style.borderColor = 'rgba(239,68,68,0.4)';
+  }
+}
+
+function clearAllMembers(){confirm2('Delete ALL member data and PINs? This cannot be undone.',()=>{saveMembers([]);savePINs({});renderOwnerPanel();showToast('All member data cleared.','success');});}
+function resetAdmins(){confirm2('Reset all admins to default?',()=>{saveAdmins([{username:'admin',password:'alliance123'}]);renderOwnerPanel();showToast('Admins reset.','success');});}
+
+// ══════════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════════
+function exportCSV(){
+  const members=getMembers();
+  if(!members.length){showToast('No members to export.','error');return;}
+  const headers=['Rank','Name','Furnace','Power (M)','Participation','Furnace Adj','Power Adj','Final Score','Tier',...CATS.map(c=>c.label)];
+  const rows=members.map(m=>{
+    const sc=calcScore(m);const fd=getFurnaceDisplay(m.furnace);
+    return[0,m.name,fd||'',m.power||'',sc.part,sc.fA,sc.pA,sc.final,getTier(sc.pct),...CATS.map(c=>m.ratings[c.id]||0)];
+  }).sort((a,b)=>b[7]-a[7]).map((r,i)=>{r[0]=i+1;return r;});
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='alliance_rankings.csv';a.click();
+  showToast('Exported.','success');
+}
+
+// ══════════════════════════════════════════
+// DELEGATED EVENT HANDLER
+// ══════════════════════════════════════════
+document.addEventListener('click',function(e){
+  // Nav tabs
+  const navTab=e.target.closest('.nav-tab[data-page]');
+  if(navTab&&navTab.dataset.page){gotoPage(navTab.dataset.page);return;}
+
+  // Home snippet "View all" links
+  const gotoEl=e.target.closest('[data-goto]');
+  if(gotoEl&&gotoEl.dataset.goto){gotoPage(gotoEl.dataset.goto);return;}
+
+  // Resource filter buttons
+  const resFilter=e.target.closest('[data-resfilter]');
+  if(resFilter){renderResources(resFilter.dataset.resfilter);return;}
+
+  // Data-action buttons
+  const t=e.target.closest('[data-action]');
+  if(!t)return;
+  const action=t.dataset.action,id=t.dataset.id,name=t.dataset.name;
+  switch(action){
+    case 'view-member': openProfileModal(id); break;
+    case 'edit-member': openMemberModal(id); break;
+    case 'edit-member-from-profile': closeModal('modal-profile');openMemberModal(id); break;
+    case 'del-member': deleteMember(id,name||id); break;
+    case 'del-member-from-profile': closeModal('modal-profile');deleteMember(id,name||id); break;
+    case 'reset-pin': resetPIN(id,name||id); break;
+    case 'edit-ann': openAnnModal(id); break;
+    case 'del-ann': deleteAnnouncement(id); break;
+    case 'edit-ev': openEvModal(id); break;
+    case 'del-ev': deleteEvent(id); break;
+    case 'signup': toggleSignup(t.dataset.evid,t.dataset.slot,t.dataset.player,true); break;
+    case 'unsignup': toggleSignup(t.dataset.evid,t.dataset.slot,t.dataset.player,false); break;
+    case 'del-res': deleteResource(id); break;
+    case 'reply-fb': openReplyModal(id); break;
+    case 'del-fb': deleteFeedbackItem(id); break;
+    case 'edit-my-fb':    openEditFeedback(id); break;
+    case 'del-my-fb':     deleteMyFeedback(id); break;
+    case 'del-admin': removeAdmin(parseInt(t.dataset.idx)); break;
+    case 'bc-add-sub':    addBCSubItem(t.dataset.bcid, t.dataset.sitype); break;
+    case 'bc-rm-sub':     removeBCSubItem(t.dataset.bcid, t.dataset.siid); break;
+    case 'bc-set-lane':   setBCLane(t.dataset.siid, t.dataset.lane); break;
+  }
+});
+
+// Buff checkbox handler
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.classList&&t.classList.contains('bc-buff-cb')){
+    var siId=t.dataset.siid, key=t.dataset.bkey;
+    bcList.forEach(function(cfg){
+      var si=cfg.subItems.find(function(s){return s.id===siId;});
+      if(si){if(!si.buffs)si.buffs=[];if(t.checked){if(si.buffs.indexOf(key)<0)si.buffs.push(key);}else{si.buffs=si.buffs.filter(function(b){return b!==key;});}}
+    });
+  }
+});
+// Ratio preview handler
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.dataset&&t.dataset.siaction==='ratio-preview'&&t.dataset.siid)updateRatioPreview(t.dataset.siid);
+});
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+// ── INIT ──
+
+</script>
+<script>
+initApp();
+</script>
+</body>
+</html>
